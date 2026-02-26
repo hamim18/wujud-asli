@@ -191,8 +191,8 @@
   });
 
   // ---- State management ----
-  const FADE_DURATION   = 900;
-  const REVEAL_DURATION = 6000;
+  const FADE_DURATION   = 2000;
+  const REVEAL_DURATION = 10000;
   let revealTimer = null;
 
   function setPanel(state) {
@@ -213,7 +213,7 @@
     emojiEl.style.transition = "";
     setPanel("stateRevealed");
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      emojiEl.style.transition = "opacity 0.8s cubic-bezier(0.34,1.56,0.64,1), transform 0.8s cubic-bezier(0.34,1.56,0.64,1)";
+      emojiEl.style.transition = "opacity 1.4s cubic-bezier(0.34,1.56,0.64,1), transform 1.4s cubic-bezier(0.34,1.56,0.64,1)";
       emojiEl.style.opacity    = "1";
       emojiEl.style.transform  = "scale(1) rotate(0deg)";
       setTimeout(() => {

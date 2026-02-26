@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0e0a0d">
+<title>Wujud Asli — Control</title>
+<link rel="manifest" href="manifest-control.json">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --dark: #080507; --blood: #8b0000; --gold: #c9a84c; --gold-bright: #e8c96a;
+    --panel-bg: #0e0a0d; --text: #e8ddd0; --faded: #6a5a55; --mist: #1e1520;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { height:100%; background:var(--panel-bg); color:var(--text); font-family:"Crimson Text",Georgia,serif; overflow:hidden; }
+
+  .layout { display:flex; height:100vh; }
+
+  /* ---- LEFT: Form + Script ---- */
+  .main-col { flex:1; display:flex; flex-direction:column; padding:20px; gap:14px; overflow:hidden; min-width:0; position:relative; z-index:1; }
+
+  /* BG ornaments */
+  .main-col::before { content:""; position:absolute; top:-80px; right:-80px; width:320px; height:320px; border-radius:50%; border:1px solid rgba(139,0,0,0.06); box-shadow:0 0 0 25px rgba(139,0,0,0.03),0 0 0 50px rgba(139,0,0,0.015); pointer-events:none; z-index:0; }
+  .main-col::after { content:""; position:absolute; bottom:-100px; left:-80px; width:380px; height:380px; border-radius:50%; border:1px solid rgba(201,168,76,0.04); box-shadow:0 0 0 30px rgba(201,168,76,0.02),0 0 0 70px rgba(201,168,76,0.01); pointer-events:none; z-index:0; }
+  .deco { position:absolute; font-family:"Cinzel Decorative",serif; pointer-events:none; user-select:none; z-index:0; }
+  .deco.d1 { font-size:160px; bottom:60px; right:-25px; transform:rotate(12deg); color:rgba(201,168,76,0.03); }
+  .deco.d2 { font-size:120px; top:90px; left:-25px; transform:rotate(-18deg); color:rgba(201,168,76,0.02); }
+
+  .host-bar { display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid rgba(201,168,76,0.07); flex-shrink:0; position:relative; z-index:1; }
+  .host-label { display:flex; align-items:center; gap:8px; font-family:"Cinzel",serif; font-size:8px; letter-spacing:3px; color:var(--faded); text-transform:uppercase; }
+  .live-dot { width:6px; height:6px; background:var(--blood); border-radius:50%; animation:blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0.15;} }
+  .conn-status { font-family:"Cinzel",serif; font-size:8px; letter-spacing:2px; color:var(--faded); display:flex; align-items:center; gap:5px; }
+  .conn-indicator { width:6px; height:6px; border-radius:50%; background:#333; transition:background 0.3s; flex-shrink:0; }
+  .conn-indicator.ok { background:#2d5a1b; box-shadow:0 0 5px rgba(45,90,27,0.7); }
+  .conn-indicator.err { background:var(--blood); animation:blink 1s infinite; }
+
+  /* Form */
+  .form-section { background:rgba(30,15,25,0.7); border:1px solid rgba(201,168,76,0.1); border-radius:2px; padding:16px; position:relative; flex-shrink:0; z-index:1; }
+  .form-section::before { content:"✦"; position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:var(--panel-bg); padding:0 8px; color:rgba(201,168,76,0.4); font-size:10px; }
+  .form-label { font-family:"Cinzel",serif; font-size:8px; letter-spacing:3px; color:rgba(201,168,76,0.5); text-transform:uppercase; margin-bottom:10px; display:block; }
+  .name-input-row { display:flex; gap:8px; }
+  .name-input { flex:1; background:rgba(0,0,0,0.5); border:1px solid rgba(201,168,76,0.15); color:var(--text); font-family:"Cinzel",serif; font-size:15px; letter-spacing:1px; padding:11px 14px; border-radius:2px; outline:none; transition:border-color 0.3s,box-shadow 0.3s; }
+  .name-input:focus { border-color:rgba(201,168,76,0.35); box-shadow:0 0 12px rgba(201,168,76,0.07); }
+  .name-input::placeholder { color:var(--faded); font-style:italic; font-family:"Crimson Text",serif; font-size:13px; letter-spacing:0; }
+  .reveal-btn { background:var(--blood); color:var(--text); border:1px solid rgba(139,0,0,0.4); padding:11px 18px; font-family:"Cinzel",serif; font-size:10px; letter-spacing:2px; cursor:pointer; border-radius:2px; transition:all 0.3s; white-space:nowrap; text-transform:uppercase; }
+  .reveal-btn:hover:not(:disabled) { background:#a00000; box-shadow:0 0 20px rgba(139,0,0,0.4); }
+  .reveal-btn:disabled { opacity:0.35; cursor:not-allowed; }
+
+  /* Script */
+  .script-section { flex:1; background:rgba(8,5,7,0.6); border:1px solid rgba(201,168,76,0.07); border-radius:2px; padding:16px; position:relative; overflow-y:auto; display:flex; flex-direction:column; z-index:1; min-height:0; }
+  .script-section::before { content:""; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(to right,transparent,rgba(201,168,76,0.25),transparent); }
+  .script-section::-webkit-scrollbar { width:3px; }
+  .script-section::-webkit-scrollbar-thumb { background:rgba(139,0,0,0.25); }
+  .script-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.04); flex-shrink:0; }
+  .script-header-label { font-family:"Cinzel",serif; font-size:8px; letter-spacing:3px; color:var(--faded); text-transform:uppercase; }
+  .object-badge { background:rgba(139,0,0,0.35); border:1px solid rgba(139,0,0,0.25); padding:3px 10px; border-radius:2px; font-family:"Cinzel",serif; font-size:11px; display:none; }
+  .object-badge.show { display:inline-block; }
+
+  /* Two-part script */
+  .script-block-label { font-family:"Cinzel",serif; font-size:8px; letter-spacing:3px; text-transform:uppercase; margin-bottom:8px; padding:4px 10px; border-radius:2px; display:inline-block; }
+  .label-preview { background:rgba(201,168,76,0.08); color:rgba(201,168,76,0.6); border:1px solid rgba(201,168,76,0.12); }
+  .label-gift { background:rgba(139,0,0,0.15); color:rgba(220,100,100,0.8); border:1px solid rgba(139,0,0,0.25); }
+  .script-divider { border:none; border-top:1px solid rgba(201,168,76,0.08); margin:14px 0; }
+  .script-text { font-size:16px; line-height:2; color:var(--text); animation:fade-in 0.4s ease; }
+  .script-text-gift { font-size:15px; line-height:1.9; color:rgba(232,221,208,0.8); }
+  .script-text strong, .script-text-gift strong { color:var(--gold-bright); font-style:normal; font-size:16px; }
+  .dark-label { color:rgba(200,80,80,0.9); font-family:"Cinzel",serif; font-size:12px; letter-spacing:2px; display:block; margin-bottom:4px; }
+  .advice-label { color:rgba(201,168,76,0.7); font-family:"Cinzel",serif; font-size:12px; letter-spacing:2px; display:block; margin-top:12px; margin-bottom:4px; }
+  @keyframes fade-in { from{opacity:0;transform:translateY(4px);} to{opacity:1;transform:translateY(0);} }
+  .script-placeholder { color:var(--faded); font-size:13px; font-style:italic; text-align:center; margin-top:30px; line-height:2.2; }
+
+  /* ---- RIGHT: History ---- */
+  .side-col { width:220px; border-left:1px solid rgba(201,168,76,0.06); display:flex; flex-direction:column; padding:20px 16px; gap:12px; flex-shrink:0; overflow:hidden; }
+  .side-title { font-family:"Cinzel",serif; font-size:8px; letter-spacing:3px; color:var(--faded); text-transform:uppercase; padding-bottom:10px; border-bottom:1px solid rgba(201,168,76,0.06); }
+  .history-list { display:flex; flex-direction:column; gap:5px; overflow-y:auto; flex:1; }
+  .history-list::-webkit-scrollbar { width:2px; }
+  .history-list::-webkit-scrollbar-thumb { background:rgba(139,0,0,0.2); }
+  .history-item { display:flex; align-items:center; gap:8px; font-size:12px; color:rgba(232,221,208,0.45); padding:6px 8px; background:rgba(0,0,0,0.2); border-radius:2px; border-left:2px solid rgba(139,0,0,0.15); cursor:pointer; transition:background 0.2s; }
+  .history-item:hover { background:rgba(139,0,0,0.1); }
+  .history-item:first-child { color:rgba(232,221,208,0.75); border-left-color:rgba(139,0,0,0.4); }
+  .history-item .hi-emoji { font-size:18px; flex-shrink:0; }
+  .history-item .hi-info { flex:1; min-width:0; }
+  .history-item .hi-name { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .history-item .hi-obj { display:block; font-size:10px; opacity:0.5; margin-top:1px; }
+
+  /* Timer bar */
+  .timer-wrap { flex-shrink:0; }
+  .timer-label { font-family:"Cinzel",serif; font-size:8px; letter-spacing:2px; color:var(--faded); text-transform:uppercase; margin-bottom:6px; }
+  .timer-bar-bg { height:3px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; }
+  .timer-bar { height:100%; background:var(--blood); border-radius:2px; width:0%; transition:width 0.1s linear; }
+  .timer-text { font-family:"Cinzel",serif; font-size:10px; color:var(--faded); margin-top:4px; text-align:center; }
+
+  /* Ornament divider */
+  .ornament-div { display:flex; align-items:center; gap:8px; opacity:0.15; flex-shrink:0; }
+  .ornament-div::before,.ornament-div::after { content:""; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
+  .ornament-div::after { background:linear-gradient(to left,transparent,var(--gold)); }
+  .ornament-div span { font-size:9px; color:var(--gold); }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <!-- MAIN COLUMN -->
+  <div class="main-col">
+    <div class="deco d1">☽</div>
+    <div class="deco d2">✦</div>
+
+    <div class="host-bar">
+      <div class="host-label"><span class="live-dot"></span>Panel Host — Control</div>
+      <div class="conn-status">
+        <span class="conn-indicator" id="connIndicator"></span>
+        <span id="connText">Menghubungkan...</span>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <span class="form-label">Masukkan nama penonton</span>
+      <div class="name-input-row">
+        <input type="text" class="name-input" id="nameInput" placeholder="nama lengkap..." autocomplete="off"/>
+        <button class="reveal-btn" id="revealBtn" onclick="doReveal()">Baca Wujud</button>
+      </div>
+    </div>
+
+    <div class="script-section">
+      <div class="script-header">
+        <span class="script-header-label">Naskah Pembacaan</span>
+        <span class="object-badge" id="objectBadge"></span>
+      </div>
+      <div id="scriptContent">
+        <div class="script-placeholder">Masukkan nama penonton<br>dan tekan <em>"Baca Wujud"</em><br>untuk memulai...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDE COLUMN -->
+  <div class="side-col">
+    <div class="side-title">Riwayat</div>
+
+    <div class="timer-wrap" id="timerWrap" style="display:none;">
+      <div class="timer-label">Tampil selama</div>
+      <div class="timer-bar-bg"><div class="timer-bar" id="timerBar"></div></div>
+      <div class="timer-text" id="timerText">—</div>
+    </div>
+
+    <div class="ornament-div"><span>✦</span></div>
+
+    <div class="history-list" id="historyList">
+      <div style="color:var(--faded);font-size:12px;font-style:italic;font-family:'Crimson Text',serif;text-align:center;padding-top:20px;">Belum ada riwayat...</div>
+    </div>
+  </div>
+</div>
+
+<!-- Objects data must load before module -->
+<script src="objects.js"></script>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
+    authDomain: "wujud-asli.firebaseapp.com",
+    databaseURL: "https://wujud-asli-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "wujud-asli",
+    storageBucket: "wujud-asli.firebasestorage.app",
+    messagingSenderId: "925029041014",
+    appId: "1:925029041014:web:ccae53254a649cdb0ab057"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+  const sessionRef = ref(db, "session");
+
+  // Connection monitor
+  onValue(ref(db, ".info/connected"), snap => {
+    const ok = snap.val();
+    document.getElementById("connIndicator").className = "conn-indicator " + (ok ? "ok" : "err");
+    document.getElementById("connText").textContent = ok ? "Terhubung" : "Terputus...";
+  });
+
+  // ---- Objects data ----
+  const COOLDOWN_TURNS = 4;
+  const SCAN_DURATION  = 3200;
+  const REVEAL_DURATION = 6000;
+  const FADE_DURATION   = 900;
+
+  const categoryCooldown = {};
+  let currentIndex = null;
+  let history = [];
+  let isAnimating = false;
+  let timerInterval = null;
+
+  function pickObject() {
+    for (const cat in categoryCooldown) { if (categoryCooldown[cat] > 0) categoryCooldown[cat]--; }
+    const available = objects.filter((obj, idx) => !(categoryCooldown[obj.category] || 0) && idx !== currentIndex);
+    const pool = available.length > 0 ? available : objects.filter((_, idx) => idx !== currentIndex);
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    currentIndex = objects.indexOf(chosen);
+    categoryCooldown[chosen.category] = COOLDOWN_TURNS;
+    return chosen;
+  }
+
+  function startTimer(duration) {
+    const wrap = document.getElementById("timerWrap");
+    const bar  = document.getElementById("timerBar");
+    const txt  = document.getElementById("timerText");
+    wrap.style.display = "block";
+    if (timerInterval) clearInterval(timerInterval);
+    const start = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const pct = Math.min((elapsed / duration) * 100, 100);
+      bar.style.width = pct + "%";
+      const remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+      txt.textContent = remaining + "s";
+      if (elapsed >= duration) {
+        clearInterval(timerInterval);
+        wrap.style.display = "none";
+      }
+    }, 100);
+  }
+
+  window.doReveal = function() {
+    if (isAnimating) return;
+    const name = document.getElementById("nameInput").value.trim();
+    if (!name) { document.getElementById("nameInput").focus(); return; }
+
+    isAnimating = true;
+    document.getElementById("revealBtn").disabled = true;
+
+    const obj = pickObject();
+
+    // Update script panel immediately
+    document.getElementById("objectBadge").textContent = obj.emoji + " " + obj.name;
+    document.getElementById("objectBadge").classList.add("show");
+    document.getElementById("scriptContent").innerHTML = `
+      <div style="margin-bottom:14px;">
+        <span class="script-block-label label-preview">▶ Preview — baca untuk semua</span>
+        <div class="script-text">${obj.preview}</div>
+      </div>
+      <hr class="script-divider">
+      <div>
+        <span class="script-block-label label-gift">🎁 Full Reading — gift only</span>
+        <div class="script-text-gift">
+          <span class="dark-label">◈ Sisi Gelap</span>${obj.full_dark}
+          <span class="advice-label">◈ Pesan ke Depan</span>${obj.full_advice}
+        </div>
+      </div>`;
+
+    // Add to history
+    history.unshift({ name, obj });
+    if (history.length > 20) history.pop();
+    renderHistory();
+
+    document.getElementById("nameInput").value = "";
+
+    // PHASE 1: Push scanning state to Firebase
+    set(sessionRef, { state: "scanning", name, ts: Date.now() });
+
+    // PHASE 2: After scan duration, push revealed
+    setTimeout(() => {
+      set(sessionRef, { state: "revealed", name, emoji: obj.emoji, objName: obj.name, ts: Date.now() });
+      startTimer(REVEAL_DURATION);
+
+      // PHASE 3: Back to idle
+      setTimeout(() => {
+        set(sessionRef, { state: "idle", ts: Date.now() });
+        isAnimating = false;
+        document.getElementById("revealBtn").disabled = false;
+        document.getElementById("nameInput").focus();
+      }, REVEAL_DURATION + FADE_DURATION);
+
+    }, SCAN_DURATION);
+  };
+
+  function renderHistory() {
+    const list = document.getElementById("historyList");
+    if (!history.length) {
+      list.innerHTML = '<div style="color:var(--faded);font-size:12px;font-style:italic;font-family:Crimson Text,serif;text-align:center;padding-top:20px;">Belum ada riwayat...</div>';
+      return;
+    }
+    list.innerHTML = history.map((h, i) => `
+      <div class="history-item" onclick="reloadScript(${i})">
+        <span class="hi-emoji">${h.obj.emoji}</span>
+        <span class="hi-info">
+          <span class="hi-name">${h.name}</span>
+          <span class="hi-obj">${h.obj.name}</span>
+        </span>
+      </div>`).join("");
+  }
+
+  window.reloadScript = function(idx) {
+    const h = history[idx];
+    if (!h) return;
+    document.getElementById("objectBadge").textContent = h.obj.emoji + " " + h.obj.name;
+    document.getElementById("objectBadge").classList.add("show");
+    document.getElementById("scriptContent").innerHTML = `
+      <div style="margin-bottom:14px;">
+        <span class="script-block-label label-preview">▶ Preview — baca untuk semua</span>
+        <div class="script-text">${h.obj.preview}</div>
+      </div>
+      <hr class="script-divider">
+      <div>
+        <span class="script-block-label label-gift">🎁 Full Reading — gift only</span>
+        <div class="script-text-gift">
+          <span class="dark-label">◈ Sisi Gelap</span>${h.obj.full_dark}
+          <span class="advice-label">◈ Pesan ke Depan</span>${h.obj.full_advice}
+        </div>
+      </div>`;
+  };
+
+  document.getElementById("nameInput").addEventListener("keydown", e => {
+    if (e.key === "Enter") window.doReveal();
+  });
+
+  // Set initial idle state
+  set(sessionRef, { state: "idle", ts: Date.now() });
+</script>
+
+<script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  }
+</script>
+</body>
+</html>

@@ -5,166 +5,443 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#080507">
-<title>Wujud Asli — Display</title>
-<link rel="manifest" href="/manifest-display.json">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#050308">
+<title>Objectif.ID — Display</title>
+<link rel="manifest" href="manifest-display.json">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;1,400&family=Cinzel:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --dark: #080507;
-    --blood: #8b0000;
-    --gold: #c9a84c;
-    --gold-bright: #e8c96a;
-    --text: #e8ddd0;
-    --faded: #6a5a55;
+    --bg:    #050308;
+    --gold:  #D4A843;
+    --gold2: #F0C85A;
+    --white: #F5EFE0;
+    --dim:   #7a6a55;
+    --red:   #9B1B1B;
   }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
-    padding: 10vh 0;
-    width: 100%; height: 100%;
-    background: var(--dark);
-    overflow: hidden;
-  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { width:100%; height:100%; background:var(--bg); overflow:hidden; font-family:'Cormorant Garamond',Georgia,serif; }
+
   body {
-    display: flex; align-items: center; justify-content: center;
-    background: radial-gradient(ellipse at center, #160b0f 0%, #080507 75%);
-    position: relative;
-  }
-  body::before {
-    content: "";
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 15% 15%, rgba(139,0,0,0.12) 0%, transparent 45%),
-      radial-gradient(ellipse at 85% 85%, rgba(139,0,0,0.08) 0%, transparent 45%),
-      radial-gradient(ellipse at 50% 50%, rgba(80,0,30,0.15) 0%, transparent 60%);
-    pointer-events: none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    position:relative;
+    background: radial-gradient(ellipse 80% 70% at 50% 50%, #1a0820 0%, #050308 70%);
   }
 
-  /* TITLE */
-  .panel-title {
-    position: absolute; top: 0; left: 0; right: 0;
-    text-align: center; padding: 18px 0 14px; z-index: 10;
-    border-bottom: 1px solid rgba(201,168,76,0.12);
-    background: linear-gradient(to bottom, rgba(8,5,7,0.95), transparent);
+  /* ── SCANLINES ── */
+  .bg-scanlines {
+    position:absolute; inset:0; pointer-events:none; z-index:1;
+    background-image: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.07) 3px, rgba(0,0,0,0.07) 4px);
   }
-  .panel-title-main {
-    font-family: "Cinzel Decorative", serif; font-size: 16px;
-    color: var(--gold); letter-spacing: 8px;
-    text-shadow: 0 0 25px rgba(201,168,76,0.6), 0 0 50px rgba(201,168,76,0.2);
-  }
-  .panel-title-sub { font-family: "Cinzel", serif; font-size: 9px; letter-spacing: 5px; color: var(--faded); margin-top: 5px; }
 
-  /* CORNERS */
-  .corner-svg { position: absolute; opacity: 0.2; z-index: 5; }
-  .corner-svg.tl { top: 90px; left: 15px; }
-  .corner-svg.tr { top: 90px; right: 15px; transform: scaleX(-1); }
-  .corner-svg.bl { bottom: 60px; left: 15px; transform: scaleY(-1); }
-  .corner-svg.br { bottom: 60px; right: 15px; transform: scale(-1); }
-
-  /* STAGE */
-  .object-stage {
-    position: relative; width: min(340px, 80vw); height: min(340px, 80vw);
-    display: flex; align-items: center; justify-content: center; z-index: 5;
+  /* ── NEBULA CLOUDS ── */
+  .nebula {
+    position:absolute; border-radius:50%; pointer-events:none; z-index:0;
+    filter:blur(60px);
   }
-  .ring { position: absolute; border-radius: 50%; }
-  .ring-1 { width: 76%; height: 76%; animation: spin 25s linear infinite; border: 1px solid rgba(201,168,76,0.12); }
-  .ring-2 { width: 91%; height: 91%; animation: spin 35s linear infinite reverse; border: 1px dashed rgba(139,0,0,0.2); }
-  .ring-3 { width: 109%; height: 109%; animation: spin 50s linear infinite; border: 1px solid rgba(201,168,76,0.06); }
-  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-  .object-glow {
-    position: absolute; width: 74%; height: 74%; border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(139,0,0,0.3) 0%, rgba(80,0,20,0.1) 50%, transparent 70%);
-    animation: pulse-glow 3s ease-in-out infinite; z-index: 1;
+  .nebula-1 {
+    width:300px; height:300px; left:-80px; top:-60px;
+    background:radial-gradient(circle, rgba(155,27,27,0.18) 0%, transparent 70%);
+    animation: nebula-drift1 14s ease-in-out infinite;
   }
-  @keyframes pulse-glow { 0%,100% { opacity:0.6; transform:scale(1); } 50% { opacity:1; transform:scale(1.15); } }
+  .nebula-2 {
+    width:250px; height:250px; right:-60px; bottom:-40px;
+    background:radial-gradient(circle, rgba(80,0,120,0.15) 0%, transparent 70%);
+    animation: nebula-drift2 18s ease-in-out infinite;
+  }
+  .nebula-3 {
+    width:200px; height:200px; left:50%; top:50%; transform:translate(-50%,-50%);
+    background:radial-gradient(circle, rgba(212,168,67,0.06) 0%, transparent 70%);
+    animation: nebula-pulse 8s ease-in-out infinite;
+  }
+  @keyframes nebula-drift1 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(40px,30px) scale(1.2);} }
+  @keyframes nebula-drift2 { 0%,100%{transform:translate(0,0) scale(1);} 50%{transform:translate(-30px,-20px) scale(1.15);} }
+  @keyframes nebula-pulse  { 0%,100%{transform:translate(-50%,-50%) scale(1); opacity:0.6;} 50%{transform:translate(-50%,-50%) scale(1.4); opacity:1;} }
 
-  /* STATES */
-  .state { position: absolute; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 20px; z-index: 3; }
-  .state.active { display: flex; }
+  /* ── STARS ── */
+  .stars { position:absolute; inset:0; pointer-events:none; z-index:2; overflow:hidden; }
+  .star {
+    position:absolute; border-radius:50%;
+    background:var(--gold2); opacity:0;
+    animation: star-twinkle var(--dur) ease-in-out infinite var(--delay);
+  }
+  @keyframes star-twinkle { 0%,100%{opacity:0; transform:scale(0.4);} 50%{opacity:var(--op); transform:scale(1);} }
+
+  /* ── SHOOTING STARS ── */
+  .shooting-star {
+    position:absolute; pointer-events:none; z-index:3;
+    width:80px; height:1px;
+    background:linear-gradient(to right, transparent, var(--gold2), transparent);
+    opacity:0;
+    animation: shoot var(--dur) ease-in infinite var(--delay);
+    transform:rotate(var(--angle));
+  }
+  @keyframes shoot {
+    0%   { opacity:0; transform:rotate(var(--angle)) translateX(-100px); }
+    10%  { opacity:0.8; }
+    40%  { opacity:0; transform:rotate(var(--angle)) translateX(200px); }
+    100% { opacity:0; transform:rotate(var(--angle)) translateX(200px); }
+  }
+
+  /* ── FLOATING SYMBOLS ── */
+  .symbol-float {
+    position:absolute; pointer-events:none; z-index:2;
+    font-size:var(--sz); color:var(--gold); opacity:0;
+    animation: sym-drift var(--dur) ease-in-out infinite var(--delay);
+  }
+  @keyframes sym-drift {
+    0%   { opacity:0;       transform:translateY(0)     rotate(0deg); }
+    20%  { opacity:var(--op); }
+    80%  { opacity:var(--op); }
+    100% { opacity:0;       transform:translateY(-40px) rotate(15deg); }
+  }
+
+  /* ── ENERGY PARTICLES ── */
+  .particle {
+    position:absolute; border-radius:50%; pointer-events:none; z-index:3;
+    width:var(--sz); height:var(--sz);
+    background:var(--gold2); opacity:0;
+    animation: particle-rise var(--dur) ease-out infinite var(--delay);
+  }
+  @keyframes particle-rise {
+    0%   { opacity:0;   transform:translateY(0)    scale(0); }
+    20%  { opacity:0.6; transform:translateY(-20px) scale(1); }
+    100% { opacity:0;   transform:translateY(-80px) scale(0.3); }
+  }
+
+  /* ── HEADER ── */
+  .header {
+    position:absolute; top:0; left:0; right:0;
+    padding:18px 28px 14px;
+    display:flex; align-items:center; justify-content:space-between;
+    border-bottom:1px solid rgba(212,168,67,0.2);
+    background:linear-gradient(to bottom, rgba(5,3,8,0.95), transparent);
+    z-index:10;
+  }
+  .brand-name {
+    font-family:'Cinzel',serif; font-size:15px; font-weight:700;
+    letter-spacing:4px; color:var(--gold2);
+    text-shadow:0 0 20px rgba(240,200,90,0.6);
+    animation: brand-breathe 5s ease-in-out infinite;
+  }
+  @keyframes brand-breathe { 0%,100%{text-shadow:0 0 20px rgba(240,200,90,0.6);} 50%{text-shadow:0 0 35px rgba(240,200,90,0.9), 0 0 60px rgba(240,200,90,0.3);} }
+  .brand-tagline { font-style:italic; font-size:11px; letter-spacing:3px; color:var(--dim); margin-top:3px; }
+  .header-runes {
+    font-size:13px; letter-spacing:8px; color:var(--gold); opacity:0.35;
+    animation: rune-scroll 12s linear infinite;
+  }
+  @keyframes rune-scroll { 0%{letter-spacing:6px; opacity:0.2;} 50%{letter-spacing:10px; opacity:0.55;} 100%{letter-spacing:6px; opacity:0.2;} }
+
+  /* ── CORNERS ── */
+  .corner { position:absolute; width:55px; height:55px; z-index:5; opacity:0.55; }
+  .corner svg { width:100%; height:100%; }
+  .corner.tl { top:66px; left:16px; }
+  .corner.tr { top:66px; right:16px; transform:scaleX(-1); }
+  .corner.bl { bottom:56px; left:16px; transform:scaleY(-1); }
+  .corner.br { bottom:56px; right:16px; transform:scale(-1,-1); }
+  /* Corner pulse */
+  .corner { animation: corner-glow 4s ease-in-out infinite; }
+  .corner.tl,.corner.br { animation-delay:0s; }
+  .corner.tr,.corner.bl { animation-delay:2s; }
+  @keyframes corner-glow { 0%,100%{opacity:0.4;} 50%{opacity:0.75;} }
+
+  /* ── SIDE RUNES ── */
+  .side-runes {
+    position:absolute; top:50%; transform:translateY(-50%);
+    display:flex; flex-direction:column; gap:18px;
+    z-index:4; pointer-events:none;
+  }
+  .side-runes.left  { left:16px; align-items:flex-start; }
+  .side-runes.right { right:16px; align-items:flex-end; }
+  .side-rune {
+    font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px;
+    color:var(--gold); opacity:0.15;
+    animation: rune-seq var(--dur) ease-in-out infinite var(--del);
+    transition: transform 0.3s;
+  }
+  @keyframes rune-seq {
+    0%,100% { opacity:0.1; transform:translateX(0) scale(1); }
+    50%     { opacity:0.4; transform:translateX(var(--shift,3px)) scale(1.15); }
+  }
+
+  /* ── MAIN STAGE ── */
+  .stage {
+    position:relative;
+    width:min(310px,74vw); height:min(310px,74vw);
+    display:flex; align-items:center; justify-content:center;
+    z-index:5;
+  }
+
+  /* Rings */
+  .ring { position:absolute; border-radius:50%; top:50%; left:50%; }
+  .ring-rune  { width:138%; height:138%; margin-left:-69%; margin-top:-69%; border:1px solid rgba(212,168,67,0.07); animation:spin 90s linear infinite; }
+  .ring-outer { width:118%; height:118%; margin-left:-59%; margin-top:-59%; border:1px dashed rgba(212,168,67,0.14); animation:spin 45s linear infinite; }
+  .ring-mid   { width:96%;  height:96%;  margin-left:-48%; margin-top:-48%; border:1px solid rgba(212,168,67,0.25); animation:spin 28s linear infinite reverse; }
+  .ring-inner { width:72%;  height:72%;  margin-left:-36%; margin-top:-36%; border:2px solid rgba(212,168,67,0.6); box-shadow:0 0 22px rgba(212,168,67,0.14), inset 0 0 22px rgba(212,168,67,0.07); animation:ring-inner-pulse 4s ease-in-out infinite; }
+  @keyframes ring-inner-pulse { 0%,100%{box-shadow:0 0 22px rgba(212,168,67,0.14), inset 0 0 22px rgba(212,168,67,0.07);} 50%{box-shadow:0 0 40px rgba(212,168,67,0.35), inset 0 0 30px rgba(212,168,67,0.12);} }
+  @keyframes spin { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+
+  /* Tick marks — also rotate with ring */
+  .ring-ticks {
+    position:absolute; width:72%; height:72%;
+    top:50%; left:50%; transform:translate(-50%,-50%);
+  }
+  .tick { position:absolute; width:1px; height:8px; background:rgba(212,168,67,0.5); left:50%; top:0; transform-origin:bottom center; }
+
+  /* Crosshair */
+  .crosshair { position:absolute; width:72%; height:72%; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .crosshair::before { content:""; position:absolute; width:100%; height:1px; top:50%; background:linear-gradient(to right,transparent,rgba(212,168,67,0.4),transparent); }
+  .crosshair::after  { content:""; position:absolute; width:1px; height:100%; left:50%; background:linear-gradient(to bottom,transparent,rgba(212,168,67,0.4),transparent); }
+
+  /* Glow */
+  .stage-glow {
+    position:absolute; width:58%; height:58%; border-radius:50%;
+    background:radial-gradient(ellipse, rgba(155,27,27,0.4) 0%, transparent 70%);
+    animation:glow-pulse 3s ease-in-out infinite;
+  }
+  @keyframes glow-pulse { 0%,100%{transform:scale(1); opacity:0.6;} 50%{transform:scale(1.3); opacity:1;} }
+
+  /* Mystic SVG lines */
+  .mystic-lines {
+    position:absolute; width:72%; height:72%;
+    top:50%; left:50%; transform:translate(-50%,-50%);
+    pointer-events:none;
+    animation: lines-rotate 60s linear infinite;
+  }
+  @keyframes lines-rotate { from{transform:translate(-50%,-50%) rotate(0deg);} to{transform:translate(-50%,-50%) rotate(360deg);} }
+
+  /* ── STATES ── */
+  .state { position:absolute; width:100%; height:100%; display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px; text-align:center; padding:16px; z-index:3; }
+  .state.active { display:flex; }
 
   /* IDLE */
-  .idle-symbol { font-size: clamp(28px,6vw,42px); color: var(--gold); letter-spacing: 12px; animation: float-idle 4s ease-in-out infinite; opacity: 0.3; }
-  @keyframes float-idle { 0%,100% { transform:translateY(0); opacity:0.3; } 50% { transform:translateY(-8px); opacity:0.5; } }
-  .idle-text-main { font-family: "Cinzel", serif; font-size: clamp(11px,2.5vw,15px); letter-spacing: 2px; color: var(--gold); line-height: 2; opacity: 0.8; text-shadow: 0 0 20px rgba(201,168,76,0.3); }
-  .idle-text-sub { font-family: "Crimson Text", serif; font-style: italic; font-size: clamp(11px,2vw,13px); color: var(--faded); animation: flicker 5s ease-in-out infinite; }
-  @keyframes flicker { 0%,85%,100%{opacity:0.5;} 90%{opacity:0.15;} 93%{opacity:0.7;} 96%{opacity:0.2;} }
+  .idle-symbol-row { font-size:clamp(18px,4vw,26px); color:var(--gold); letter-spacing:14px; opacity:0.45; animation:sym-row-float 4s ease-in-out infinite; }
+  @keyframes sym-row-float { 0%,100%{transform:translateY(0); opacity:0.4;} 50%{transform:translateY(-10px); opacity:0.75;} }
+  .idle-main { font-family:'Cinzel',serif; font-size:clamp(12px,2.6vw,15px); letter-spacing:2px; color:var(--white); line-height:2; opacity:0.7; }
+  .idle-sub  { font-style:italic; font-size:clamp(11px,2vw,13px); color:var(--dim); letter-spacing:1px; animation:flicker 6s ease-in-out infinite; }
+  @keyframes flicker { 0%,80%,100%{opacity:0.5;} 85%{opacity:0.1;} 90%{opacity:0.65;} 95%{opacity:0.15;} }
+
+  /* Idle orb breathe */
+  .idle-orb {
+    width:55px; height:55px; border-radius:50%;
+    border:1.5px solid rgba(212,168,67,0.35);
+    display:flex; align-items:center; justify-content:center;
+    position:relative;
+    animation: orb-breathe 4s ease-in-out infinite;
+  }
+  .idle-orb::before { content:""; position:absolute; inset:8px; border-radius:50%; border:1px dashed rgba(212,168,67,0.2); animation:spin 8s linear infinite; }
+  .idle-orb-dot { width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 12px var(--gold), 0 0 30px rgba(212,168,67,0.5); animation:orb-dot-pulse 2s ease-in-out infinite; }
+  @keyframes orb-breathe { 0%,100%{transform:scale(1); box-shadow:none;} 50%{transform:scale(1.1); box-shadow:0 0 25px rgba(212,168,67,0.2);} }
+  @keyframes orb-dot-pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.4); box-shadow:0 0 20px var(--gold2), 0 0 40px rgba(212,168,67,0.4);} }
 
   /* SCANNING */
-  .scan-label { font-family: "Cinzel", serif; font-size: 9px; letter-spacing: 5px; color: var(--faded); text-transform: uppercase; }
-  .scan-name { font-family: "Cinzel", serif; font-size: clamp(16px,4vw,26px); letter-spacing: 5px; color: var(--gold-bright); text-shadow: 0 0 30px rgba(232,201,106,0.8); animation: name-pulse 1.2s ease-in-out infinite; }
-  @keyframes name-pulse { 0%,100%{opacity:1;} 50%{opacity:0.65; text-shadow:0 0 60px rgba(232,201,106,1),0 0 100px rgba(139,0,0,0.5);} }
-  .scan-bar-wrap { width: 180px; height: 2px; background: rgba(201,168,76,0.1); border-radius: 2px; overflow: hidden; position: relative; }
-  .scan-bar { height:100%; width:40%; background:linear-gradient(to right,transparent,var(--gold),transparent); position:absolute; animation:scan-move 1.4s ease-in-out infinite; }
-  @keyframes scan-move { 0%{left:-40%;} 100%{left:140%;} }
-  .scan-dots { font-family:"Cinzel",serif; font-size:11px; letter-spacing:4px; color:rgba(139,0,0,0.8); text-transform:uppercase; }
-  .scan-dots span { animation:dot-blink 1.4s ease-in-out infinite; }
-  .scan-dots span:nth-child(2){animation-delay:0.2s;}
-  .scan-dots span:nth-child(3){animation-delay:0.4s;}
+  .scan-eyebrow  { font-family:'Cinzel',serif; font-size:9px; letter-spacing:6px; color:var(--dim); text-transform:uppercase; }
+  .scan-name     { font-family:'Cinzel',serif; font-size:clamp(20px,5vw,32px); font-weight:700; letter-spacing:6px; color:var(--gold2); text-shadow:0 0 20px rgba(240,200,90,0.9),0 0 50px rgba(240,200,90,0.4),0 0 80px rgba(155,27,27,0.3); animation:name-throb 1.4s ease-in-out infinite; }
+  @keyframes name-throb { 0%,100%{opacity:1;} 50%{opacity:0.6; text-shadow:0 0 40px rgba(240,200,90,1),0 0 80px rgba(155,27,27,0.6);} }
+  .scan-bar-track { width:160px; height:2px; background:rgba(212,168,67,0.1); border-radius:2px; overflow:hidden; position:relative; }
+  .scan-bar-fill  { position:absolute; height:100%; width:45%; background:linear-gradient(to right,transparent,var(--gold2),transparent); animation:bar-sweep 1.5s ease-in-out infinite; }
+  @keyframes bar-sweep { 0%{left:-45%;} 100%{left:145%;} }
+  .scan-status   { font-family:'Cinzel',serif; font-size:10px; letter-spacing:4px; color:rgba(155,27,27,0.9); text-shadow:0 0 10px rgba(155,27,27,0.5); }
+  .scan-status span { animation:dot-blink 1.4s ease-in-out infinite; }
+  .scan-status span:nth-child(2){animation-delay:0.25s;}
+  .scan-status span:nth-child(3){animation-delay:0.5s;}
   @keyframes dot-blink { 0%,100%{opacity:0.2;} 50%{opacity:1;} }
+  .scan-ritual { font-size:18px; letter-spacing:10px; color:var(--gold); opacity:0.4; animation:ritual-expand 3s ease-in-out infinite; }
+  @keyframes ritual-expand { 0%,100%{letter-spacing:8px; opacity:0.3;} 50%{letter-spacing:14px; opacity:0.65;} }
 
   /* REVEALED */
-  .object-emoji {
-    font-size: clamp(100px, 22vw, 160px); line-height: 1;
-    filter: drop-shadow(0 0 30px rgba(139,0,0,0.6)) drop-shadow(0 0 70px rgba(139,0,0,0.2));
-    animation: obj-float 3s ease-in-out infinite;
+  .obj-emoji {
+    font-size:clamp(90px,20vw,140px); line-height:1;
+    filter:drop-shadow(0 0 24px rgba(155,27,27,0.7)) drop-shadow(0 0 60px rgba(155,27,27,0.25));
+    animation:obj-levitate 3s ease-in-out infinite;
   }
-  @keyframes obj-float {
-    0%,100%{transform:translateY(0) scale(1) rotate(-2deg);}
-    50%{transform:translateY(-12px) scale(1.05) rotate(2deg); filter:drop-shadow(0 0 50px rgba(139,0,0,0.9)) drop-shadow(0 0 100px rgba(201,168,76,0.2));}
+  @keyframes obj-levitate {
+    0%,100%{transform:translateY(0) rotate(-2deg);}
+    50%{transform:translateY(-14px) rotate(2deg); filter:drop-shadow(0 0 40px rgba(155,27,27,0.9)) drop-shadow(0 0 80px rgba(212,168,67,0.25));}
   }
-  .revealed-name { font-family:"Cinzel",serif; font-size:clamp(12px,2.5vw,18px); letter-spacing:6px; color:var(--gold); text-shadow:0 0 20px rgba(201,168,76,0.5); }
+  .obj-name    { font-family:'Cinzel',serif; font-size:clamp(13px,2.8vw,19px); font-weight:700; letter-spacing:5px; color:var(--gold2); text-shadow:0 0 18px rgba(240,200,90,0.5); }
+  .reveal-sigil { font-size:20px; letter-spacing:8px; color:var(--gold); opacity:0.35; animation:sigil-spin-step 6s steps(1) infinite; }
+  @keyframes sigil-spin-step { 0%{content:"✦ ᚠ ✦";} 25%{opacity:0.5;} 50%{opacity:0.3;} 75%{opacity:0.5;} 100%{opacity:0.35;} }
 
-  /* BOTTOM NAME */
-  .name-tag { position:absolute; bottom:0; left:0; right:0; text-align:center; padding:12px 0 16px; border-top:1px solid rgba(201,168,76,0.08); background:linear-gradient(to top,rgba(8,5,7,0.95),transparent); z-index:10; }
-  .name-tag-text { font-family:"Cinzel",serif; font-size:9px; letter-spacing:5px; color:var(--faded); text-transform:uppercase; }
+  /* ── FOOTER ── */
+  .footer {
+    position:absolute; bottom:0; left:0; right:0;
+    padding:11px 28px 14px;
+    border-top:1px solid rgba(212,168,67,0.14);
+    background:linear-gradient(to top, rgba(5,3,8,0.95), transparent);
+    display:flex; align-items:center; justify-content:center; gap:12px; z-index:10;
+  }
+  .footer-diamond { width:5px; height:5px; background:var(--gold); transform:rotate(45deg); opacity:0.4; animation:diamond-pulse 3s ease-in-out infinite; }
+  .footer-diamond:last-child { animation-delay:1.5s; }
+  @keyframes diamond-pulse { 0%,100%{opacity:0.3; transform:rotate(45deg) scale(1);} 50%{opacity:0.7; transform:rotate(45deg) scale(1.3);} }
+  .footer-name { font-family:'Cinzel',serif; font-size:10px; letter-spacing:5px; color:var(--dim); text-transform:uppercase; min-width:120px; text-align:center; }
 
-  /* CONNECTION STATUS */
-  .conn-dot { position:absolute; top:12px; right:12px; width:8px; height:8px; border-radius:50%; background:#333; z-index:20; transition:background 0.3s; }
-  .conn-dot.connected { background:#2d5a1b; box-shadow:0 0 6px rgba(45,90,27,0.8); }
-  .conn-dot.disconnected { background:#8b0000; animation:blink-red 1s infinite; }
+  /* ── CONN DOT ── */
+  .conn-dot { position:absolute; top:14px; right:16px; width:7px; height:7px; border-radius:50%; background:#222; z-index:20; transition:background 0.3s; }
+  .conn-dot.connected    { background:#2d6b1b; box-shadow:0 0 6px rgba(45,107,27,0.8); }
+  .conn-dot.disconnected { background:#8b1b1b; animation:blink-red 1s infinite; }
   @keyframes blink-red { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
 </style>
 </head>
 <body>
 
-<div class="panel-title">
-  <div class="panel-title-main">Objectif.ID</div>
-  <div class="panel-title-sub">Pembacaan Jiwa</div>
+<div class="bg-scanlines"></div>
+
+<!-- NEBULA CLOUDS -->
+<div class="nebula nebula-1"></div>
+<div class="nebula nebula-2"></div>
+<div class="nebula nebula-3"></div>
+
+<!-- STARS -->
+<div class="stars" id="starsContainer"></div>
+
+<!-- SHOOTING STARS -->
+<div id="shootingContainer"></div>
+
+<!-- FLOATING SYMBOLS -->
+<div id="symbolsContainer"></div>
+
+<!-- ENERGY PARTICLES -->
+<div id="particlesContainer"></div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="brand">
+    <div class="brand-name">OBJECTIF.ID</div>
+    <div class="brand-tagline">Pembacaan jiwa</div>
+  </div>
+  <div class="header-runes">☽ ✦ ᚷ ᚱ ✦ ☾</div>
 </div>
 
-<svg class="corner-svg tl" width="65" height="65" viewBox="0 0 65 65" fill="none"><path d="M5 5 L5 35 M5 5 L35 5" stroke="#c9a84c" stroke-width="1.5"/><path d="M5 5 L22 22" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/><circle cx="5" cy="5" r="2.5" fill="#c9a84c" opacity="0.6"/><circle cx="22" cy="22" r="1.5" fill="#c9a84c" opacity="0.3"/><path d="M14 5 L14 14 L5 14" stroke="#c9a84c" stroke-width="0.6" opacity="0.35"/></svg>
-<svg class="corner-svg tr" width="65" height="65" viewBox="0 0 65 65" fill="none"><path d="M5 5 L5 35 M5 5 L35 5" stroke="#c9a84c" stroke-width="1.5"/><path d="M5 5 L22 22" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/><circle cx="5" cy="5" r="2.5" fill="#c9a84c" opacity="0.6"/><circle cx="22" cy="22" r="1.5" fill="#c9a84c" opacity="0.3"/><path d="M14 5 L14 14 L5 14" stroke="#c9a84c" stroke-width="0.6" opacity="0.35"/></svg>
-<svg class="corner-svg bl" width="65" height="65" viewBox="0 0 65 65" fill="none"><path d="M5 5 L5 35 M5 5 L35 5" stroke="#c9a84c" stroke-width="1.5"/><path d="M5 5 L22 22" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/><circle cx="5" cy="5" r="2.5" fill="#c9a84c" opacity="0.6"/><circle cx="22" cy="22" r="1.5" fill="#c9a84c" opacity="0.3"/><path d="M14 5 L14 14 L5 14" stroke="#c9a84c" stroke-width="0.6" opacity="0.35"/></svg>
-<svg class="corner-svg br" width="65" height="65" viewBox="0 0 65 65" fill="none"><path d="M5 5 L5 35 M5 5 L35 5" stroke="#c9a84c" stroke-width="1.5"/><path d="M5 5 L22 22" stroke="#c9a84c" stroke-width="0.8" opacity="0.5"/><circle cx="5" cy="5" r="2.5" fill="#c9a84c" opacity="0.6"/><circle cx="22" cy="22" r="1.5" fill="#c9a84c" opacity="0.3"/><path d="M14 5 L14 14 L5 14" stroke="#c9a84c" stroke-width="0.6" opacity="0.35"/></svg>
+<!-- CORNERS -->
+<div class="corner tl"><svg viewBox="0 0 55 55" fill="none"><path d="M4 4 L4 30 M4 4 L30 4" stroke="#D4A843" stroke-width="1.8"/><circle cx="4" cy="4" r="2.5" fill="#D4A843" opacity="0.8"/><path d="M13 4 L13 13 L4 13" stroke="#D4A843" stroke-width="0.7" opacity="0.4"/><circle cx="13" cy="13" r="1" fill="#D4A843" opacity="0.3"/></svg></div>
+<div class="corner tr"><svg viewBox="0 0 55 55" fill="none"><path d="M4 4 L4 30 M4 4 L30 4" stroke="#D4A843" stroke-width="1.8"/><circle cx="4" cy="4" r="2.5" fill="#D4A843" opacity="0.8"/><path d="M13 4 L13 13 L4 13" stroke="#D4A843" stroke-width="0.7" opacity="0.4"/><circle cx="13" cy="13" r="1" fill="#D4A843" opacity="0.3"/></svg></div>
+<div class="corner bl"><svg viewBox="0 0 55 55" fill="none"><path d="M4 4 L4 30 M4 4 L30 4" stroke="#D4A843" stroke-width="1.8"/><circle cx="4" cy="4" r="2.5" fill="#D4A843" opacity="0.8"/><path d="M13 4 L13 13 L4 13" stroke="#D4A843" stroke-width="0.7" opacity="0.4"/><circle cx="13" cy="13" r="1" fill="#D4A843" opacity="0.3"/></svg></div>
+<div class="corner br"><svg viewBox="0 0 55 55" fill="none"><path d="M4 4 L4 30 M4 4 L30 4" stroke="#D4A843" stroke-width="1.8"/><circle cx="4" cy="4" r="2.5" fill="#D4A843" opacity="0.8"/><path d="M13 4 L13 13 L4 13" stroke="#D4A843" stroke-width="0.7" opacity="0.4"/><circle cx="13" cy="13" r="1" fill="#D4A843" opacity="0.3"/></svg></div>
 
-<div class="object-stage">
-  <div class="ring ring-1"></div>
-  <div class="ring ring-2"></div>
-  <div class="ring ring-3"></div>
-  <div class="object-glow"></div>
+<!-- SIDE RUNES -->
+<div class="side-runes left">
+  <div class="side-rune" style="--dur:5s;--del:0s;--shift:4px;">ᚠ</div>
+  <div class="side-rune" style="--dur:7s;--del:1s;--shift:3px;">ᚢ</div>
+  <div class="side-rune" style="--dur:6s;--del:2s;--shift:5px;">ᚦ</div>
+  <div class="side-rune" style="--dur:5s;--del:0.5s;--shift:3px;">ᚨ</div>
+  <div class="side-rune" style="--dur:8s;--del:3s;--shift:4px;">ᚱ</div>
+</div>
+<div class="side-runes right">
+  <div class="side-rune" style="--dur:6s;--del:1.5s;--shift:-4px;">ᚷ</div>
+  <div class="side-rune" style="--dur:5s;--del:0.8s;--shift:-3px;">ᚹ</div>
+  <div class="side-rune" style="--dur:7s;--del:2.5s;--shift:-5px;">ᚺ</div>
+  <div class="side-rune" style="--dur:5s;--del:0.3s;--shift:-3px;">ᚾ</div>
+  <div class="side-rune" style="--dur:9s;--del:4s;--shift:-4px;">ᛁ</div>
+</div>
 
+<!-- MAIN STAGE -->
+<div class="stage">
+  <div class="ring ring-rune"></div>
+  <div class="ring ring-outer"></div>
+  <div class="ring ring-mid"></div>
+  <div class="ring ring-inner"></div>
+  <div class="ring-ticks" id="ringTicks"></div>
+
+  <svg class="mystic-lines" viewBox="0 0 100 100" fill="none" style="opacity:0.1;">
+    <line x1="50" y1="2"  x2="50" y2="98" stroke="#D4A843" stroke-width="0.6"/>
+    <line x1="2"  y1="50" x2="98" y2="50" stroke="#D4A843" stroke-width="0.6"/>
+    <line x1="15" y1="15" x2="85" y2="85" stroke="#D4A843" stroke-width="0.6"/>
+    <line x1="85" y1="15" x2="15" y2="85" stroke="#D4A843" stroke-width="0.6"/>
+    <circle cx="50" cy="50" r="30" stroke="#D4A843" stroke-width="0.6"/>
+    <circle cx="50" cy="50" r="15" stroke="#D4A843" stroke-width="0.4" stroke-dasharray="3 4"/>
+    <circle cx="50" cy="50" r="3"  fill="#D4A843" opacity="0.6"/>
+  </svg>
+
+  <div class="crosshair"></div>
+  <div class="stage-glow"></div>
+
+  <!-- IDLE -->
   <div class="state active" id="stateIdle">
-    <div class="idle-symbol">☽ ✦ ☾</div>
-    <div class="idle-text-main">Ketikkan namamu<br>untuk mengetahui<br>Seperti apa dirimu</div>
-    <div class="idle-text-sub">— bisikkan namamu kepada malam —</div>
+    <div class="idle-orb"><div class="idle-orb-dot"></div></div>
+    <div class="idle-symbol-row">☽ ✦ ☾</div>
+    <div class="idle-main">Ketikkan namamu<br>untuk mengetahui<br>wujud aslimu</div>
+    <div class="idle-sub">— bisikkan namamu kepada malam —</div>
   </div>
 
+  <!-- SCANNING -->
   <div class="state" id="stateScanning">
-    <div class="scan-label">Membaca jiwa</div>
+    <div class="scan-ritual">✦ ᚠ ᚢ ᚦ ✦</div>
+    <div class="scan-eyebrow">Membaca jiwa</div>
     <div class="scan-name" id="scanName"></div>
-    <div class="scan-bar-wrap"><div class="scan-bar"></div></div>
-    <div class="scan-dots">Menelusuri<span>.</span><span>.</span><span>.</span></div>
+    <div class="scan-bar-track"><div class="scan-bar-fill"></div></div>
+    <div class="scan-status">Menelusuri<span>.</span><span>.</span><span>.</span></div>
   </div>
 
+  <!-- REVEALED -->
   <div class="state" id="stateRevealed">
-    <div class="object-emoji" id="objectEmoji"></div>
-    <div class="revealed-name" id="revealedName"></div>
+    <div class="reveal-sigil">✦ ᚷ ✦</div>
+    <div class="obj-emoji" id="objectEmoji"></div>
+    <div class="obj-name"  id="revealedName"></div>
   </div>
 </div>
 
-<div class="name-tag"><div class="name-tag-text" id="nameTagBottom">✦ &nbsp; ✦ &nbsp; ✦</div></div>
-<div class="conn-dot" id="connDot" title="Firebase connection"></div>
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-diamond"></div>
+  <div class="footer-name" id="nameTagBottom">✦ &nbsp; ✦ &nbsp; ✦</div>
+  <div class="footer-diamond"></div>
+</div>
+
+<div class="conn-dot" id="connDot"></div>
+
+<script>
+  // Stars
+  const sc = document.getElementById("starsContainer");
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement("div");
+    s.className = "star";
+    const size = Math.random() * 2.5 + 1;
+    s.style.cssText = `width:${size}px;height:${size}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--dur:${(Math.random()*5+3).toFixed(1)}s;--delay:${(Math.random()*8).toFixed(1)}s;--op:${(Math.random()*0.55+0.15).toFixed(2)};`;
+    sc.appendChild(s);
+  }
+
+  // Shooting stars
+  const sh = document.getElementById("shootingContainer");
+  for (let i = 0; i < 5; i++) {
+    const s = document.createElement("div");
+    s.className = "shooting-star";
+    s.style.cssText = `left:${Math.random()*60+10}%;top:${Math.random()*40+10}%;--dur:${(Math.random()*4+5).toFixed(1)}s;--delay:${(Math.random()*12+2).toFixed(1)}s;--angle:${-20+Math.random()*40}deg;`;
+    sh.appendChild(s);
+  }
+
+  // Floating symbols
+  const syms = ["☽","☾","✦","✧","⊕","∞","⍟","☆","ᚠ","ᚢ","ᚱ","ᚷ","◈"];
+  const symC = document.getElementById("symbolsContainer");
+  for (let i = 0; i < 14; i++) {
+    const el = document.createElement("div");
+    el.className = "symbol-float";
+    el.textContent = syms[Math.floor(Math.random()*syms.length)];
+    el.style.cssText = `left:${Math.random()*85+5}%;top:${Math.random()*70+10}%;--sz:${Math.random()*10+9}px;--dur:${(Math.random()*9+6).toFixed(1)}s;--delay:${(Math.random()*10).toFixed(1)}s;--op:${(Math.random()*0.18+0.07).toFixed(2)};`;
+    symC.appendChild(el);
+  }
+
+  // Particles around center
+  const pc = document.getElementById("particlesContainer");
+  for (let i = 0; i < 12; i++) {
+    const p = document.createElement("div");
+    p.className = "particle";
+    const angle = (i / 12) * 360;
+    const r = 90 + Math.random() * 60;
+    const cx = window.innerWidth/2 + r * Math.cos(angle * Math.PI/180);
+    const cy = window.innerHeight/2 + r * Math.sin(angle * Math.PI/180);
+    p.style.cssText = `left:${cx}px;top:${cy}px;--sz:${Math.random()*3+1.5}px;--dur:${(Math.random()*3+2).toFixed(1)}s;--delay:${(Math.random()*4).toFixed(1)}s;`;
+    pc.appendChild(p);
+  }
+
+  // Tick marks
+  const tc = document.getElementById("ringTicks");
+  for (let i = 0; i < 12; i++) {
+    const t = document.createElement("div");
+    t.className = "tick";
+    t.style.transform = `translateX(-50%) rotate(${i*30}deg)`;
+    tc.appendChild(t);
+  }
+</script>
 
 <!-- Firebase -->
 <script type="module">
@@ -184,84 +461,48 @@
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
   const connDot = document.getElementById("connDot");
-
-  // Monitor connection
   onValue(ref(db, ".info/connected"), snap => {
     connDot.className = "conn-dot " + (snap.val() ? "connected" : "disconnected");
   });
 
-  // ---- State management ----
-  const FADE_DURATION   = 6000;
-  const REVEAL_DURATION = 20000;
-  let revealTimer = null;
+  const REVEAL_DURATION = 6000;
+  let revealTimer = null, lastKey = null;
 
-  function setPanel(state) {
-    ["stateIdle","stateScanning","stateRevealed"].forEach(id => {
-      document.getElementById(id).classList.remove("active");
-    });
-    document.getElementById(state).classList.add("active");
+  function setPanel(id) {
+    ["stateIdle","stateScanning","stateRevealed"].forEach(s => document.getElementById(s).classList.remove("active"));
+    document.getElementById(id).classList.add("active");
   }
 
-  function doRevealAnimation(emoji, name) {
-    const emojiEl = document.getElementById("objectEmoji");
-    const nameEl  = document.getElementById("revealedName");
-    emojiEl.textContent = emoji;
-    nameEl.textContent  = name.toUpperCase();
-    emojiEl.style.animation  = "none";
-    emojiEl.style.opacity    = "0";
-    emojiEl.style.transform  = "scale(0.15) rotate(-20deg)";
-    emojiEl.style.transition = "";
+  function doReveal(emoji, name) {
+    const el = document.getElementById("objectEmoji");
+    const nm = document.getElementById("revealedName");
+    el.textContent = emoji; nm.textContent = name.toUpperCase();
+    el.style.animation = "none"; el.style.opacity = "0"; el.style.transform = "scale(0.1) rotate(-25deg)"; el.style.transition = "";
     setPanel("stateRevealed");
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      emojiEl.style.transition = "opacity 6s cubic-bezier(0.34,1.56,0.64,1), transform 6s cubic-bezier(0.34,1.56,0.64,1)";
-      emojiEl.style.opacity    = "1";
-      emojiEl.style.transform  = "scale(1) rotate(0deg)";
-      setTimeout(() => {
-        emojiEl.style.transition = "";
-        emojiEl.style.animation  = "obj-float 3s ease-in-out infinite";
-      }, 2000);
+      el.style.transition = "opacity 0.85s cubic-bezier(0.34,1.56,0.64,1), transform 0.85s cubic-bezier(0.34,1.56,0.64,1)";
+      el.style.opacity = "1"; el.style.transform = "scale(1) rotate(0deg)";
+      setTimeout(() => { el.style.transition = ""; el.style.animation = "obj-levitate 3s ease-in-out infinite"; }, 900);
     }));
   }
 
-  // Listen to Firebase state changes
-  let lastState = null;
   onValue(ref(db, "session"), snap => {
-    const data = snap.val();
-    if (!data) return;
-
-    // Avoid re-processing same state
-    const stateKey = data.state + (data.name||"") + (data.emoji||"") + (data.ts||"");
-    if (stateKey === lastState) return;
-    lastState = stateKey;
-
+    const data = snap.val(); if (!data) return;
+    const key = data.state + (data.name||"") + (data.ts||"");
+    if (key === lastKey) return; lastKey = key;
     if (revealTimer) { clearTimeout(revealTimer); revealTimer = null; }
-
+    const nameTag = document.getElementById("nameTagBottom");
     if (data.state === "idle") {
-      setPanel("stateIdle");
-      document.getElementById("nameTagBottom").textContent = "✦ \u00A0 ✦ \u00A0 ✦";
-
+      setPanel("stateIdle"); nameTag.innerHTML = "✦ &nbsp; ✦ &nbsp; ✦";
     } else if (data.state === "scanning") {
       document.getElementById("scanName").textContent = (data.name||"").toUpperCase();
-      document.getElementById("nameTagBottom").textContent = (data.name||"").toUpperCase();
-      setPanel("stateScanning");
-
+      nameTag.textContent = (data.name||"").toUpperCase(); setPanel("stateScanning");
     } else if (data.state === "revealed") {
-      document.getElementById("nameTagBottom").textContent = (data.name||"").toUpperCase();
-      doRevealAnimation(data.emoji, data.name||"");
-      // Auto back to idle after REVEAL_DURATION
-      revealTimer = setTimeout(() => {
-        setPanel("stateIdle");
-        document.getElementById("nameTagBottom").textContent = "✦ \u00A0 ✦ \u00A0 ✦";
-      }, REVEAL_DURATION + FADE_DURATION);
+      nameTag.textContent = (data.name||"").toUpperCase(); doReveal(data.emoji, data.name||"");
+      revealTimer = setTimeout(() => { setPanel("stateIdle"); nameTag.innerHTML = "✦ &nbsp; ✦ &nbsp; ✦"; }, REVEAL_DURATION);
     }
   });
 </script>
-
-<!-- PWA service worker -->
-<script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
-  }
-</script>
+<script>if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});</script>
 </body>
 </html>

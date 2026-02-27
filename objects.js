@@ -2688,7 +2688,8 @@ Tempat orang melihat dirinya sendiri.
 
 Tapi jarang ada yang bertanya:
 “Kalau kamu sendiri gimana?”`,
-    full_advice: ``
+    full_advice: `Kadang kamu terlalu sibuk memantulkan orang lain,
+sampai lupa punya wajah sendiri.`
   },
 
   {
@@ -2705,7 +2706,8 @@ Jago bilang “ayo semangat!”
 
 Tapi dirinya sendiri?
 Masih menunda mimpinya.`,
-    full_advice: ``
+    full_advice: `Membangunkan orang lain itu baik.
+Tapi jangan lupa bangun juga.`
   },
 
   {
@@ -2721,7 +2723,8 @@ Orang datang saat butuh.
 Pergi saat sudah selesai.
 
 Dan kamu tetap berdiri.`,
-    full_advice: ``
+    full_advice: `Tidak semua yang datang memang ditakdirkan tinggal.
+Tapi kamu tetap punya hak memilih siapa yang boleh masuk.`
   },
 
   {
@@ -2736,7 +2739,8 @@ dan sangat tidak cocok untuk yang lain.
 
 Masalahnya bukan kamu rusak.
 Hanya salah tempat.`,
-    full_advice: ``
+    full_advice: `Tidak semua ketidakcocokan berarti kegagalan.
+Kadang cuma salah kaki.`
   },
 
   {
@@ -2753,7 +2757,7 @@ Terlihat jadi solusi.
 
 Tapi kamu juga manusia.
 Kamu juga butuh sumber energi.`,
-    full_advice: ``
+    full_advice: `Bahkan yang menerangi pun perlu diisi ulang.`
   },
 
   {
@@ -2769,7 +2773,8 @@ Jadi tempat orang menaruh beban.
 Jadi yang “kuat dulu ya”.
 
 Tapi siapa yang menopang kamu?`,
-    full_advice: ``
+    full_advice: `Menjadi sandaran itu baik.
+Tapi kamu juga berhak bersandar.`
   },
 
   {
@@ -2785,7 +2790,8 @@ Mengatur arah.
 
 Tapi pernahkah kamu bertanya:
 “Hidupku sendiri sedang menuju ke mana?”`,
-    full_advice: ``
+    full_advice: `Jangan cuma mengukur waktu orang lain.
+Ukur juga arahmu sendiri.`
   },
 
   {
@@ -2800,7 +2806,8 @@ Absurd? Sedikit.`,
 Padahal kamu punya ruang untuk belajar.
 Ruang untuk berubah.
 Ruang untuk menerima hal baru.`,
-    full_advice: ``
+    full_advice: `Kosong bukan selalu kekurangan.
+Kadang itu kesempatan.`
   },
 
   {
@@ -2816,7 +2823,8 @@ Melihat mereka maju.
 Melihat mereka berhasil.
 
 Sementara kamu merasa diam di tempat.`,
-    full_advice: ``
+    full_advice: `Membantu orang naik bukan berarti kamu tidak bertumbuh.
+Kadang itu bagian dari perjalananmu sendiri.`
   },
 
   {
@@ -2832,7 +2840,8 @@ Menjadi orang yang meredakan suasana.
 Menjadi yang “nggak apa-apa, aku kuat.”
 
 Padahal kamu juga butuh ketenangan.`,
-    full_advice: ``
+    full_advice: `Membuat orang lain tenang itu mulia.
+Tapi jangan lupa memberi sejuk pada dirimu sendiri.`
   },
 
   {
@@ -2847,7 +2856,9 @@ Aneh ya, setia tapi tidak terlihat.`,
 keraguan, rasa takut, kenangan lama.
 Kadang kamu ingin meninggalkannya,
 tapi dia tetap ada.`,
-    full_advice: ``
+    full_advice: `Bayangan bukan musuh.
+Ia hanya muncul karena ada cahaya.
+Mungkin bagian yang kamu hindari itu justru bukti kamu sedang bergerak menuju terang.`
   },
 
   {
@@ -2863,7 +2874,10 @@ Perasaan yang tidak terucap.
 Kekecewaan kecil yang dibiarkan menumpuk.
 
 Dan kamu bilang, “nggak apa-apa.”`,
-    full_advice: ``
+    full_advice: `Yang ditumpuk tetap ada.
+Bukan hilang.
+Kadang yang kamu butuhkan bukan pura-pura kuat,
+tapi berani membersihkan isi kepala sendiri.`
   },
 
   {
@@ -2879,7 +2893,9 @@ Menenangkan mereka.
 Membuka cara pandang baru.
 
 Tapi kapan terakhir kali kamu membuka dirimu sendiri?`,
-    full_advice: ``
+    full_advice: `Membantu orang melihat dunia itu indah.
+Tapi jangan sampai kamu lupa mengalami hidupmu sendiri,
+bukan cuma jadi perantaranya.`
   },
 
   {
@@ -2893,7 +2909,9 @@ Tak terlihat. Tak dipuji.`,
 Yang meredakan.
 Yang menyatukan.
 Yang menahan agar tidak retak.`,
-    full_advice: ``
+    full_advice: `Menjadi penghubung itu berharga.
+Tapi jangan sampai kamu habis hanya untuk menjaga semuanya tetap utuh,
+sementara dirimu sendiri perlahan retak tanpa sadar.`
   },
 
   {
@@ -2910,7 +2928,9 @@ Tahu mana yang salah.
 
 Tapi menjalankannya?
 Itu cerita lain.`,
-    full_advice: ``
+    full_advice: `Mengetahui arah bukan berarti bergerak.
+Kadang kamu terlalu sibuk memahami hidup,
+sampai lupa menjalaninya.`
   },
 
   {
@@ -2926,7 +2946,9 @@ Terlalu memaklumi.
 Terlalu membiarkan orang lain melewati batasmu.
 
 Dan kamu bilang, “nggak apa-apa.”`,
-    full_advice: ``
+    full_advice: `Diam bukan selalu sabar.
+Bisa jadi itu tanda kamu lupa bahwa kamu juga punya batas.
+Baik itu bagus, tapi bukan berarti kamu harus jadi alas semua orang.`
   },
 
   {
@@ -2942,7 +2964,9 @@ Tidak berubah.
 Tidak rapuh.
 
 Tapi hidup memang membuatmu melebur sedikit demi sedikit.`,
-    full_advice: ``
+    full_advice: `Berubah bukan berarti hilang.
+Kadang mencair justru cara hidup mengajarkanmu menyesuaikan diri.
+Tidak semua yang meleleh itu gagal.`
   },
 
   {
@@ -2956,7 +2980,9 @@ Tapi tetap tertutup.`,
     full_dark: `Ada potensi dalam dirimu yang belum kamu sentuh.
 Bukan karena tidak mampu.
 Tapi karena takut memulai.`,
-    full_advice: ``
+    full_advice: `Bakat yang tidak dicoba tetap hanya kemungkinan.
+Kadang yang membatasi kamu bukan dunia,
+tapi keputusanmu untuk tetap tertutup.`
   },
 
   {
@@ -2973,7 +2999,8 @@ Ingin lebih jauh.
 
 Tapi saat kesempatan datang,
 kamu ragu meninggalkan zona aman.`,
-    full_advice: ``
+    full_advice: `Kadang yang kamu sebut aman itu hanya kebiasaan.
+Dan untuk naik, memang harus berani lepas sebentar dari pegangan lama.`
   },
 
   {
@@ -2989,7 +3016,9 @@ Tidak dihargai.
 Tidak cocok.
 
 Padahal bisa jadi kamu hanya belum berada di pintu yang tepat.`,
-    full_advice: ``
+    full_advice: `Nilaimu tidak berubah hanya karena satu tempat tidak membutuhkannya.
+Kadang kamu bukan tidak berguna —
+kamu hanya salah kunci untuk pintu itu.`
   },
 
   {
@@ -3007,7 +3036,9 @@ Tidak paling bersinar.
 Tapi kehadiranmu menenangkan.
 Menyambungkan.
 Membuat suasana tetap jalan.`,
-    full_advice: ``
+    full_advice: `Nilai tidak selalu diukur dari seberapa terlihat kamu.
+Kadang kamu baru sadar pentingnya sesuatu saat ia tidak ada.
+Mungkin kamu lebih berarti dari yang kamu kira.`
   },
 
   {
@@ -3021,7 +3052,9 @@ Lucu ya, dekat dengan kepala, tapi tidak pernah ikut mikir.`,
     full_dark: `Ada kalanya kamu terlihat “tenang banget”.
 Seolah tidak terpengaruh apa pun.
 Padahal di dalam, pikiranmu ramai sendiri.`,
-    full_advice: ``
+    full_advice: `Tenang di luar bukan berarti kosong di dalam.
+Dan tidak semua yang tampak santai benar-benar tanpa beban.
+Kadang kamu hanya pandai menyembunyikannya.`
   },
 
   {
@@ -3038,7 +3071,9 @@ Kemampuan memimpin.
 Kemampuan bertahan.
 
 Dan justru kemampuan itu membuatmu sering “dipanggil” saat masalah muncul.`,
-    full_advice: ``
+    full_advice: `Bakatmu kadang membuatmu lebih sering diuji.
+Bukan karena hidup tidak adil,
+tapi karena kamu memang mampu menanganinya.`
   },
 
   {
@@ -3054,7 +3089,9 @@ Sedikit menyedihkan, ya?`,
 “dulu lebih ringan.”
 
 Tapi hidup bukan untuk dibekukan.`,
-    full_advice: ``
+    full_advice: `Kenangan itu untuk dikenang, bukan dihuni.
+Kalau kamu terlalu lama tinggal di foto lama,
+kamu bisa melewatkan momen baru yang sedang terjadi.`
   },
 
   {
@@ -3070,7 +3107,10 @@ Tetap sempurna.
 Tidak ingin gagal.
 
 Tapi hidup memang akan memberi goresan.`,
-    full_advice: ``
+    full_advice: `Dipakai berarti berjalan.
+Berjalan berarti ada bekas.
+Dan bekas bukan tanda rusak —
+itu tanda kamu pernah bergerak.`
   },
 
   {
@@ -3085,7 +3125,10 @@ Aneh ya, berkurang tapi berguna.`,
 Waktu. Energi. Kesempatan.
 
 Kadang kamu takut merasa “berkurang”.`,
-    full_advice: ``
+    full_advice: `Tidak semua yang berkurang itu kerugian.
+Kadang kamu memang harus melepaskan satu hari
+untuk sampai ke hari berikutnya.
+Berkurang bukan selalu memburuk — bisa jadi itu proses maju.`
   },
 
   {
@@ -3100,7 +3143,10 @@ Lucunya, dia jarang diperiksa isinya.`,
 Menyimpan cerita.
 Menyimpan kecewa.
 Menyimpan kalimat yang tidak sempat diucapkan.`,
-    full_advice: ``
+    full_advice: `Yang disimpan terlalu lama bisa terasa berat.
+Bukan karena isinya besar,
+tapi karena kamu tidak pernah mengeluarkannya.
+Mungkin sesekali kamu perlu membongkar isi hatimu sendiri.`
   },
 
   {
@@ -3114,7 +3160,9 @@ Tapi dia sendiri tidak pernah bergerak.`,
     full_dark: `Kamu mungkin terbiasa jadi yang “kuat”.
 Yang tidak goyah.
 Yang selalu bisa diandalkan.`,
-    full_advice: ``
+    full_advice: `Kuat bukan berarti tidak boleh lelah.
+Dan berdiri tegak terus-menerus bukan berarti kamu tidak ingin dipeluk.
+Tembok pun bisa retak kalau tak pernah dirawat.`
   },
 
   {
@@ -3129,7 +3177,9 @@ Absurd, tapi nyata.`,
 Komentar. Pesan. Penilaian orang.
 
 Seolah setiap bunyi menentukan nilai dirimu.`,
-    full_advice: ``
+    full_advice: `Tidak semua panggilan harus dijawab.
+Tidak semua suara harus kamu anggap penting.
+Hidupmu lebih besar dari satu bunyi kecil.`
   },
 
   {
@@ -3143,7 +3193,9 @@ Aneh, tapi justru terasa lebih berharga.`,
     full_dark: `Kamu mungkin punya luka lama.
 Cerita yang tidak utuh.
 Bagian yang pernah patah.`,
-    full_advice: ``
+    full_advice: `Retak bukan akhir fungsi.
+Kadang justru di situlah kamu belajar menghargai kehangatan lebih dalam.
+Tidak semua yang tidak sempurna itu harus disingkirkan.`
   },
 
   {
@@ -3159,7 +3211,8 @@ Butuh solusi.
 Butuh ditemani.
 
 Tapi setelah semuanya selesai, kamu kembali tak dianggap.`,
-    full_advice: ``
+    full_advice: `Dicari bukan selalu berarti dihargai.
+Dan kamu berhak berada di tempat yang membuatmu diperlakukan lebih dari sekadar alat bantu sesaat.`
   },
 
   {
@@ -3175,7 +3228,9 @@ Banyak hal terjadi.
 Banyak orang berubah.
 
 Tapi kamu merasa diam di situ-situ saja.`,
-    full_advice: ``
+    full_advice: `Bergerak bukan selalu berarti bertumbuh.
+Dan merasa diam bukan berarti kamu tidak berkembang.
+Mungkin kamu sedang memproses, bukan tertinggal.`
   },
 
   {
@@ -3188,7 +3243,10 @@ Aneh ya, kita pintar bikin tombol itu di mesin, tapi tidak di diri sendiri.`,
     full_dark: `Kamu mungkin sering berharap bisa mengulang momen.
 Mengganti kata.
 Mengambil keputusan berbeda.`,
-    full_advice: ``
+    full_advice: `Karena tidak ada “undo”, kamu jadi belajar lebih sadar.
+Kesalahan bukan untuk dihapus,
+tapi untuk dipahami agar tidak terulang.
+Dan itu bagian dari tumbuh.`
   },
 
   {
@@ -3204,7 +3262,10 @@ Takut disakiti.
 Takut kecewa lagi.
 
 Akhirnya aman, tapi sepi.`,
-    full_advice: ``
+    full_advice: `Perlindungan itu penting.
+Tapi kalau terlalu tinggi,
+kamu juga bisa menghalangi orang baik masuk.
+Tidak semua kedekatan itu ancaman.`
   },
 
   {
@@ -3219,7 +3280,9 @@ Menunda merawat diri.
 Menunda mengisi ulang energi.
 
 Sampai akhirnya benar-benar kelelahan.`,
-    full_advice: ``
+    full_advice: `Mengisi ulang bukan tanda lemah.
+Justru itu cara agar kamu tidak benar-benar padam.
+Jangan tunggu hampir habis baru peduli pada diri sendiri.`
   },
 
   {
@@ -3235,7 +3298,10 @@ Suka merapikan masalah orang lain.
 Suka jadi penenang suasana.
 
 Tapi tanpa sadar, energimu ikut terkuras.`,
-    full_advice: ``
+    full_advice: `Membantu itu baik.
+Tapi kalau kamu terus mengikis diri tanpa jeda,
+yang bersih mungkin orang lain —
+tapi kamu yang habis duluan.`
   },
 
   {
@@ -3248,7 +3314,9 @@ Absurdnya, yang kosong justru paling diperhatikan.`,
     full_dark: `Kadang kamu merasa baru dicari saat kamu “tidak ada”.
 Saat kamu menjauh.
 Saat kamu berhenti memberi.`,
-    full_advice: ``
+    full_advice: `Orang sering baru sadar nilai sesuatu saat kekurangannya terasa.
+Dan kamu tidak harus selalu penuh untuk dianggap penting.
+Kadang jeda justru membuat orang menghargaimu.`
   },
 
   {
@@ -3263,7 +3331,9 @@ Sederhana dan jujur.`,
 Menahan sedih.
 Menahan kecewa.
 Menahan ingin.`,
-    full_advice: ``
+    full_advice: `Menjadi dewasa bukan berarti harus memendam semuanya.
+Ada saatnya jujur pada rasa sendiri jauh lebih sehat
+daripada pura-pura baik-baik saja.`
   },
 
   {
@@ -3277,7 +3347,9 @@ Absurd, ya? Kosong tapi bikin takut.`,
     full_dark: `Kadang kamu takut memulai sesuatu yang baru.
 Bukan karena gagal,
 tapi karena belum tahu akan jadi apa.`,
-    full_advice: ``
+    full_advice: `Kosong bukan ancaman.
+Itu ruang.
+Dan ruang itu menunggu kamu berani membuat garis pertama.`
   },
 
   {
@@ -3292,7 +3364,9 @@ Tapi konsekuensinya muncul di akhir.
 
 Begitu juga sebaliknya,
 usaha berat di awal sering terasa ringan hasilnya.`,
-    full_advice: ``
+    full_advice: `Hidup jarang langsung menunjukkan harganya di depan.
+Jadi sebelum melangkah, mungkin kamu hanya perlu bertanya:
+“Ini bayarnya di awal, atau nanti?”`
   },
 
   {
@@ -3308,7 +3382,10 @@ hidup terasa lambat sekali.
 Kamu gelisah. Tidak sabar.
 
 Tapi saat sibuk dan bahagia, waktu terasa terbang.`,
-    full_advice: ``
+    full_advice: `Bukan waktu yang lambat.
+Kadang pikiranmu yang terlalu fokus pada hasil.
+Belajar menikmati proses mungkin tidak mempercepat jam,
+tapi bisa meringankan beban menunggu.`
   },
 
   {
@@ -3324,7 +3401,9 @@ Ikut pilihan orang lain.
 
 Bergerak terus, tapi tidak pernah benar-benar bertanya:
 “Aku sebenarnya mau ke mana?”`,
-    full_advice: ``
+    full_advice: `Bergerak bukan selalu berarti memilih.
+Kalau kamu tidak menentukan arah sendiri,
+kamu hanya akan ikut perjalanan orang lain.`
   },
 
   {
@@ -3340,7 +3419,10 @@ Ingin jawaban cepat.
 Ingin perubahan segera.
 
 Padahal proses tetap butuh waktu.`,
-    full_advice: ``
+    full_advice: `Menekan lebih keras tidak mempercepat kedatangan.
+Begitu juga dalam hidup —
+usaha itu penting,
+tapi memaksa waktu tidak akan membuatnya patuh.`
   },
 
   {
@@ -3354,7 +3436,10 @@ Tapi tidak pernah menyatukan.`,
     full_dark: `Kamu mungkin cepat mengkritik.
 Cepat melihat salahnya.
 Cepat memisahkan mana yang tidak cocok.`,
-    full_advice: ``
+    full_advice: `Melihat kekurangan itu mudah.
+Menyatukan dan memperbaiki jauh lebih sulit.
+Kadang kamu perlu belajar jadi jarum,
+bukan hanya gunting.`
   },
 
   {
@@ -3369,7 +3454,10 @@ Tahu risiko.
 Tahu kemungkinan kecewa.
 
 Tapi kamu tetap harus menjalaninya.`,
-    full_advice: ``
+    full_advice: `Mengetahui bukan berarti mengendalikan.
+Kadang yang bisa kamu atur hanya persiapanmu,
+bukan cuacanya.
+Dan itu sudah cukup.`
   },
 
   {
@@ -3385,7 +3473,11 @@ Awalnya mulus.
 Lalu ada satu titik kecil yang membuat semuanya seret.
 
 Dan saat kamu memaksa, justru makin rumit.`,
-    full_advice: ``
+    full_advice: `Tidak semua yang macet harus ditarik keras.
+Kadang cukup berhenti sebentar,
+rapikan yang tersangkut,
+baru lanjut lagi.
+Memaksa bukan selalu solusi.`
   },
 
   {
@@ -3397,7 +3489,9 @@ Begitu listrik padam, baru semua orang mencarinya.
 Ironisnya, dia memang dibuat untuk momen itu.`,
     full_dark: `Mungkin kamu bukan orang yang selalu terlihat di saat senang.
 Tapi di saat sulit, orang tahu kamu bisa diandalkan.`,
-    full_advice: ``
+    full_advice: `Nilai tidak selalu terlihat saat keadaan baik-baik saja.
+Kadang kamu memang bersinar paling terang
+saat keadaan sedang gelap.`
   },
 
   {
@@ -3411,7 +3505,9 @@ Aneh ya, harga penting sebelum punya.`,
 Perhatian. Waktu. Sikap manis.
 
 Setelah merasa memiliki, kadang usaha itu berkurang.`,
-    full_advice: ``
+    full_advice: `Nilai bukan cuma tentang harga awal.
+Yang membuat sesuatu berharga adalah cara menjaganya setelah dimiliki.
+Termasuk hubungan dan kepercayaan.`
   },
 
   {
@@ -3424,7 +3520,10 @@ Tapi banyak orang mengira sebaliknya.`,
     full_dark: `Kamu mungkin tipe yang memproses dalam diam.
 Berpikir dulu sebelum bicara.
 Menyembuhkan diri tanpa banyak suara.`,
-    full_advice: ``
+    full_advice: `Hening bukan kekosongan.
+Kadang itu kedalaman.
+Tidak semua yang tenang itu kosong —
+bisa jadi justru paling penuh.`
   },
 
   {
@@ -3439,7 +3538,11 @@ saat kamu memikirkan kemungkinan buruk.
 
 Tapi saat situasinya benar-benar datang,
 sering kali tidak sebesar bayangan di kepala.`,
-    full_advice: ``
+    full_advice: `Tidak semua yang terlihat besar itu nyata.
+Kadang yang membuatmu takut hanyalah bayangan
+dari pikiranmu sendiri.
+Dan begitu kamu menyalakan keberanian,
+bayangan itu mengecil.`
   }
 
 ];

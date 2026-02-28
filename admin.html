@@ -197,6 +197,33 @@
   .settings-section { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
   .settings-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; color:var(--gold); margin-bottom:16px; }
 
+
+  /* ACCESS LIST */
+  .access-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+  .access-card {
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:18px 20px; transition:all 0.2s;
+  }
+  .access-card:hover { border-color:rgba(212,168,67,0.3); }
+  .access-card-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .access-card-name   { font-family:'Cinzel',serif; font-size:13px; color:var(--gold2); }
+  .access-card-id     { font-family:monospace; font-size:11px; color:var(--dim); margin-top:2px; }
+  .access-card-btns   { display:flex; gap:8px; flex-wrap:wrap; }
+  .access-btn {
+    flex:1; min-width:70px; padding:9px 8px; border-radius:7px; border:1px solid var(--border);
+    background:transparent; color:var(--text); font-family:'Cinzel',serif;
+    font-size:9px; letter-spacing:1px; cursor:pointer; transition:all 0.2s;
+    text-decoration:none; text-align:center; display:flex; flex-direction:column;
+    align-items:center; gap:4px;
+  }
+  .access-btn:hover { border-color:rgba(212,168,67,0.4); background:rgba(212,168,67,0.06); }
+  .access-btn .ab-icon { font-size:18px; }
+  .access-btn.red   { border-color:rgba(155,27,27,0.3); }
+  .access-btn.red:hover { border-color:rgba(155,27,27,0.6); background:rgba(155,27,27,0.08); }
+  .access-btn.green { border-color:rgba(30,107,58,0.3); }
+  .access-btn.green:hover { border-color:rgba(39,174,96,0.5); background:rgba(39,174,96,0.06); }
+  .access-expired { opacity:0.45; }
+
   /* RESPONSIVE */
   @media(max-width:600px) {
     .tabs { overflow-x:auto; }
@@ -241,6 +268,7 @@
     <button class="tab" onclick="switchTab('generate')">🎟 Generate Kode</button>
     <button class="tab" onclick="switchTab('master')">📚 Master Library</button>
     <button class="tab" onclick="switchTab('settings')">⚙ Settings</button>
+    <button class="tab" onclick="switchTab('access')">🎮 Akses Live</button>
   </div>
 
   <!-- ═══ TAB: USERS ═══ -->
@@ -336,10 +364,17 @@
 
   <!-- ═══ TAB: MASTER LIBRARY ═══ -->
   <div class="tab-pane" id="tab-master">
+
+    <!-- Info + Aksi Cepat -->
     <div class="gen-form">
       <div class="section-title">INFO MASTER LIBRARY</div>
       <div class="master-info" id="masterInfo">
         <div class="master-stat">Memuat...</div>
+      </div>
+      <div style="margin-top:18px;display:flex;gap:10px;flex-wrap:wrap;">
+        <a class="btn btn-primary" href="master-edit.html" target="_blank">✏️ &nbsp;Edit Master Library</a>
+        <a class="btn btn-ghost" href="control.html?admin=1" target="_blank">💻 &nbsp;Control (Admin)</a>
+        <a class="btn btn-ghost" href="display.html?admin=1" target="_blank">📱 &nbsp;Display (Admin)</a>
       </div>
     </div>
 
@@ -385,6 +420,21 @@
       <button class="btn btn-ghost" onclick="saveGracePeriod()">Simpan</button>
     </div>
   </div>
+
+  <!-- ═══ TAB: AKSES LIVE ═══ -->
+  <div class="tab-pane" id="tab-access">
+    <div class="section-title">
+      AKSES LANGSUNG KE WORKSPACE USER
+      <input type="text" id="accessSearch" placeholder="🔍  Cari nama atau ID..."
+        style="font-size:12px;padding:6px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);outline:none;width:220px;"
+        oninput="renderAccessList()">
+    </div>
+    <p style="font-size:13px;color:var(--dim);font-style:italic;margin-bottom:20px;line-height:1.7;">
+      Pilih user lalu buka Display, Control, atau Editor Objek mereka. Berguna untuk bantu troubleshoot atau cek isi library user.
+    </p>
+    <div id="accessList"></div>
+  </div>
+
 
 </div><!-- end appScreen -->
 
@@ -510,13 +560,14 @@ function initApp() {
 // ── TABS ──
 window.switchTab = (tab) => {
   document.querySelectorAll(".tab").forEach((t,i) => {
-    const tabs = ["users","generate","master","settings"];
+    const tabs = ["users","generate","master","settings","access"];
     t.classList.toggle("active", tabs[i]===tab);
   });
   document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
   document.getElementById("tab-"+tab).classList.add("active");
   if (tab === "master") loadMasterInfo();
   if (tab === "generate") loadPendingCodes();
+  if (tab === "access") renderAccessList();
 };
 
 // ── LOAD USERS ──
@@ -893,6 +944,59 @@ window.saveGracePeriod = async () => {
 get(ref(db, "config/gracePeriodDays")).then(snap => {
   if (snap.val()) document.getElementById("graceDays").value = snap.val();
 });
+
+
+// ── AKSES LIVE ──
+window.renderAccessList = () => {
+  const q        = (document.getElementById("accessSearch")?.value || "").toLowerCase();
+  const container = document.getElementById("accessList");
+  if (!container) return;
+
+  const entries = Object.entries(allUsers).filter(([uid, u]) => {
+    if (!q) return true;
+    return (u.info?.name||"").toLowerCase().includes(q) || uid.toLowerCase().includes(q);
+  });
+
+  if (!entries.length) {
+    container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--dim);font-style:italic;">Belum ada pengguna.</div>`;
+    return;
+  }
+
+  // Sort: aktif dulu
+  entries.sort(([,a],[,b]) => (a.subscription?.status==="active"?0:1) - (b.subscription?.status==="active"?0:1));
+
+  const BASE = location.origin;
+
+  container.innerHTML = `<div class="access-grid">` + entries.map(([uid, u]) => {
+    const name    = escHtml(u.info?.name || "—");
+    const isActive = u.subscription?.status === "active";
+    const badge   = isActive
+      ? `<span class="status-badge status-active" style="font-size:8px;">✓ AKTIF</span>`
+      : `<span class="status-badge status-expired" style="font-size:8px;">EXPIRED</span>`;
+
+    return `
+      <div class="access-card ${isActive ? "" : "access-expired"}">
+        <div class="access-card-header">
+          <div>
+            <div class="access-card-name">${name}</div>
+            <div class="access-card-id">${uid}</div>
+          </div>
+          ${badge}
+        </div>
+        <div class="access-card-btns">
+          <a class="access-btn red" href="display.html?u=${uid}" target="_blank">
+            <span class="ab-icon">📱</span>Display
+          </a>
+          <a class="access-btn" href="control.html?u=${uid}" target="_blank">
+            <span class="ab-icon">💻</span>Control
+          </a>
+          <a class="access-btn green" href="edit.html?u=${uid}" target="_blank">
+            <span class="ab-icon">✏️</span>Editor
+          </a>
+        </div>
+      </div>`;
+  }).join("") + `</div>`;
+};
 
 // ── HELPERS ──
 window.openModal  = (id) => document.getElementById(id).classList.add("open");

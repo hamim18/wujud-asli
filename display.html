@@ -331,13 +331,15 @@
 </div>
 <script>
   (function() {
-    var uid = new URLSearchParams(location.search).get("u");
-    if (uid) {
+    var p = new URLSearchParams(location.search);
+    var u = p.get("u"); var adm = p.get("admin");
+    if (u || adm) {
       var nav = document.getElementById("backNav");
       var btn = document.getElementById("backBtn");
       if (nav && btn) {
         nav.style.display = "flex";
-        btn.href = "live.html?u=" + uid;
+        btn.href = adm ? "admin.html" : "live.html?u=" + u;
+        if (adm) { var lbl = btn.querySelector(".label"); if(lbl) lbl.textContent = "ADMIN"; }
       }
     }
   })();
@@ -523,16 +525,22 @@
   const db  = getDatabase(app);
 
   // ── MULTI-USER ROUTING ──
-  const uid = new URLSearchParams(location.search).get("u");
-  if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
+  const params  = new URLSearchParams(location.search);
+  const uid     = params.get("u");
+  const isAdmin = params.get("admin") === "1";
 
-  const subSnap = await get(ref(db, `users/${uid}/subscription`));
-  const sub = subSnap.val();
-  if (!sub || sub.status !== "active" || sub.expiresAt < Date.now()) {
-    location.href = `live.html?u=${uid}`; throw new Error("Expired");
+  let BASE;
+  if (isAdmin) {
+    BASE = "master";
+  } else {
+    if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
+    const subSnap = await get(ref(db, `users/${uid}/subscription`));
+    const sub = subSnap.val();
+    if (!sub || sub.status !== "active" || sub.expiresAt < Date.now()) {
+      location.href = `live.html?u=${uid}`; throw new Error("Expired");
+    }
+    BASE = `users/${uid}`;
   }
-
-  const BASE    = `users/${uid}`;
   const connDot = document.getElementById("connDot");
   onValue(ref(db, ".info/connected"), snap => {
     connDot.className = "conn-dot " + (snap.val() ? "connected" : "disconnected");

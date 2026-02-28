@@ -169,9 +169,32 @@
   .back-btn .arrow { font-size: 13px; line-height: 1; }
   .back-btn .label { line-height: 1; }
 
+
+  /* ── SESSION LOCK ── */
+  .session-lock {
+    position:fixed; inset:0; z-index:9998;
+    background:rgba(5,3,8,0.93); backdrop-filter:blur(10px);
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    gap:18px; text-align:center; padding:30px;
+  }
+  .session-lock.show { display:flex; }
+  .lock-icon   { font-size:44px; animation:lock-float 3s ease-in-out infinite; }
+  @keyframes lock-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .lock-title  { font-family:'Cinzel',serif; font-size:14px; letter-spacing:4px; color:#D4A843; }
+  .lock-msg    { font-size:13px; color:#7a6a55; font-style:italic; max-width:320px; line-height:1.8; }
+  .lock-takeover { padding:10px 24px; background:#D4A843; color:#050308; border:none; border-radius:8px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:3px; cursor:pointer; transition:all 0.2s; }
+  .lock-takeover:hover { background:#F0C85A; }
+
 </style>
 </head>
 <body>
+
+<div class="session-lock" id="sessionLock">
+  <div class="lock-icon">🔒</div>
+  <div class="lock-title">SESSION AKTIF DI TAB LAIN</div>
+  <div class="lock-msg">Control sedang digunakan di tab atau device lain. Hanya satu sesi aktif yang diperbolehkan untuk mencegah bentrok.</div>
+  <button class="lock-takeover" onclick="takeoverSession()">⚡ &nbsp;Ambil Alih Sesi</button>
+</div>
 
 <div class="back-nav" id="backNav" style="display:none;">
   <a class="back-btn" id="backBtn" href="#">
@@ -424,8 +447,74 @@
     if (e.key === "Enter") window.doReveal();
   });
 
+  // ── DOUBLE SESSION PROTECTION ──
+  const tabId    = Math.random().toString(36).slice(2);
+  const lockRef  = ref(db, `${BASE}/controlLock`);
+
+  async function claimSession() {
+    await set(lockRef, { tabId, claimedAt: Date.now() });
+  }
+
+  async function checkSession() {
+    const snap = await get(lockRef);
+    const lock = snap.val();
+    if (!lock || lock.tabId === tabId) {
+      // Ini sesinya — claim
+      await claimSession();
+      document.getElementById("sessionLock").classList.remove("show");
+      startHeartbeat();
+    } else {
+      // Ada sesi lain
+      const age = Date.now() - (lock.claimedAt || 0);
+      if (age > 15000) {
+        // Sesi lain sudah tidak aktif > 15 detik — langsung ambil alih
+        await claimSession();
+        document.getElementById("sessionLock").classList.remove("show");
+        startHeartbeat();
+      } else {
+        document.getElementById("sessionLock").classList.add("show");
+      }
+    }
+  }
+
+  let heartbeatInterval = null;
+  function startHeartbeat() {
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
+    heartbeatInterval = setInterval(() => {
+      set(lockRef, { tabId, claimedAt: Date.now() });
+    }, 8000);
+  }
+
+  window.takeoverSession = async () => {
+    await claimSession();
+    document.getElementById("sessionLock").classList.remove("show");
+    startHeartbeat();
+    toast("⚡ Sesi diambil alih", "info");
+  };
+
+  // Lepas klaim saat tab ditutup
+  window.addEventListener("beforeunload", () => {
+    get(lockRef).then(snap => {
+      if (snap.val()?.tabId === tabId) remove(lockRef);
+    });
+  });
+
+  await checkSession();
+
   // Set initial idle state
   set(sessionRef, { state: "idle", ts: Date.now() });
+
+  // Simple toast
+  function toast(msg, type="info") {
+    const el = document.createElement("div");
+    el.style.cssText = "position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 18px;border-radius:8px;font-size:13px;font-family:'Cinzel',serif;letter-spacing:1px;animation:toast-in 0.3s ease;";
+    el.style.background = type==="info" ? "#1a1408" : "#0d2b1a";
+    el.style.border     = type==="info" ? "1px solid rgba(212,168,67,0.3)" : "1px solid rgba(39,174,96,0.4)";
+    el.style.color      = type==="info" ? "#D4A843" : "#5dbc88";
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 3000);
+  }
 </script>
 
 <script>

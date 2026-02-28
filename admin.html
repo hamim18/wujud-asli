@@ -268,6 +268,7 @@
 
     <div class="section-title">
       DAFTAR PENGGUNA
+      <button class="btn btn-danger btn-sm" onclick="runAutoDelete()" style="white-space:nowrap;">🗑 Hapus Expired</button>
       <input type="text" id="userSearch" placeholder="🔍  Cari nama atau ID..."
         style="font-size:12px;padding:6px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);outline:none;width:220px;"
         oninput="renderUsers()">
@@ -426,6 +427,24 @@
     <div class="modal-footer">
       <button class="btn btn-ghost"  onclick="closeModal('revokeModal')">Batal</button>
       <button class="btn btn-danger" onclick="confirmRevoke()">🚫 Ya, Cabut Akses</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: AUTO DELETE ═══ -->
+<div class="modal-overlay" id="autoDeleteModal">
+  <div class="modal" style="max-width:440px;">
+    <div class="modal-header">
+      <div class="modal-title">🗑 HAPUS AKUN EXPIRED</div>
+      <button class="modal-close" onclick="closeModal('autoDeleteModal')">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--text);line-height:1.7;margin-bottom:14px;">
+      <span id="autoDeleteCount">0</span> akun sudah melewati grace period dan akan dihapus <strong style="color:var(--red2);">permanen</strong>. Data tidak bisa dikembalikan.
+    </p>
+    <div id="autoDeleteList" style="max-height:200px;overflow-y:auto;margin-bottom:4px;"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost"  onclick="closeModal('autoDeleteModal')">Batal</button>
+      <button class="btn btn-danger" onclick="confirmAutoDelete()">🗑 &nbsp;Ya, Hapus Semua</button>
     </div>
   </div>
 </div>
@@ -591,7 +610,8 @@ window.renderUsers = () => {
         <td>
           <div class="td-actions">
             <button class="btn btn-ghost btn-sm"  onclick="openManage('${uid}')">Kelola</button>
-            <button class="btn btn-blue  btn-sm"  onclick="copyUserLink('${uid}')">🔗</button>
+            <button class="btn btn-blue  btn-sm"  onclick="shareWhatsApp('${uid}')" title="Share via WhatsApp">💬</button>
+            <button class="btn btn-ghost btn-sm"  onclick="copyUserLink('${uid}')" title="Salin link">🔗</button>
           </div>
         </td>
       </tr>`;
@@ -745,7 +765,64 @@ window.confirmRevoke = async () => {
 
 window.copyUserLink = (uid) => {
   const url = `${location.origin}/live.html?u=${uid}`;
-  navigator.clipboard.writeText(url).then(() => toast("🔗 Link disalin: "+url, "info"));
+  navigator.clipboard.writeText(url).then(() => toast("🔗 Link disalin!", "info"));
+};
+
+window.shareWhatsApp = (uid) => {
+  const u    = allUsers[uid] || {};
+  const name = u.info?.name || "Pengguna";
+  const url  = `${location.origin}/live.html?u=${uid}`;
+  const sub  = u.subscription || {};
+  const exp  = sub.expiresAt ? new Date(sub.expiresAt).toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"}) : "—";
+  const msg  = `✦ *OBJECTIF.ID — Akses Layanan*
+
+Hai ${name}! Akun kamu sudah aktif.
+
+🔗 *Link Dashboard:*
+${url}
+
+📅 Aktif hingga: ${exp}
+
+_Simpan link ini. Gunakan untuk masuk dari device manapun._
+
+✦ objectif.id`;
+  window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+};
+
+// ── AUTO DELETE GRACE EXPIRED ──
+window.runAutoDelete = async () => {
+  const graceSnap = await get(ref(db, "config/gracePeriodDays"));
+  const graceDays = graceSnap.val() || 30;
+  const now       = Date.now();
+  const toDelete  = [];
+
+  Object.entries(allUsers).forEach(([uid, u]) => {
+    const sub = u.subscription || {};
+    if (sub.status === "expired" && sub.expiresAt) {
+      const daysExpired = Math.floor((now - sub.expiresAt) / (24*60*60*1000));
+      if (daysExpired >= graceDays) toDelete.push([uid, u.info?.name || uid]);
+    }
+  });
+
+  if (!toDelete.length) { toast("Tidak ada user yang perlu dihapus.", "info"); return; }
+
+  document.getElementById("autoDeleteList").innerHTML =
+    toDelete.map(([uid, name]) => `<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:13px;">🗑 ${escHtml(name)} <span style="color:var(--dim);font-size:11px;">(${uid})</span></div>`).join("");
+  document.getElementById("autoDeleteCount").textContent = toDelete.length;
+  window._toDelete = toDelete;
+  openModal("autoDeleteModal");
+};
+
+window.confirmAutoDelete = async () => {
+  const toDelete = window._toDelete || [];
+  let count = 0;
+  for (const [uid] of toDelete) {
+    await remove(ref(db, `users/${uid}`));
+    count++;
+  }
+  toast(`🗑 ${count} akun dihapus permanen`, "info");
+  closeModal("autoDeleteModal");
+  window._toDelete = [];
 };
 
 // ── MASTER LIBRARY ──

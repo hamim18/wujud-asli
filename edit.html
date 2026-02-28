@@ -405,10 +405,23 @@
     </div>
   </div>
 
+  <!-- Update Banner -->
+  <div id="updateBanner" style="display:none;background:rgba(212,168,67,0.08);border-bottom:1px solid rgba(212,168,67,0.2);padding:12px 20px;display:none;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+    <div>
+      <span style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:var(--gold);">📚 &nbsp;UPDATE TERSEDIA</span>
+      <span id="updateBannerMsg" style="font-size:12px;color:var(--dim);font-style:italic;margin-left:12px;"></span>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-primary" style="font-size:9px;padding:6px 14px;" onclick="doSyncMaster()">⟳ &nbsp;Sync Sekarang</button>
+      <button class="btn btn-ghost"   style="font-size:9px;padding:6px 14px;" onclick="dismissUpdateBanner()">Nanti</button>
+    </div>
+  </div>
+
   <!-- Toolbar -->
   <div class="toolbar">
     <button class="btn btn-primary" onclick="openAddModal()">＋ &nbsp;Tambah Objek</button>
     <button class="btn btn-ghost"   onclick="openImportModal()">⬆ Import</button>
+    <button class="btn btn-ghost"   onclick="openSyncModal()">⟳ Sync Master</button>
     <button class="btn btn-ghost"   onclick="exportAll()">⬇ Export</button>
     <button class="btn btn-ghost"   onclick="openCatModal()">🗂 Kategori</button>
     <button class="btn btn-ghost"   onclick="openPinModal()">⚙ PIN</button>
@@ -554,6 +567,34 @@
   </div>
 </div>
 
+<!-- ═══════════════ MODAL: SYNC MASTER ═══════════════ -->
+<div class="modal-overlay" id="syncModal">
+  <div class="modal" style="max-width:460px;">
+    <div class="modal-header">
+      <div class="modal-title">⟳ SYNC MASTER LIBRARY</div>
+      <button class="modal-close" onclick="closeModal('syncModal')">✕</button>
+    </div>
+    <div id="syncInfo" style="margin-bottom:18px;">
+      <div style="font-size:13px;color:var(--dim);font-style:italic;line-height:1.8;">Memuat info master library...</div>
+    </div>
+    <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.2);border-radius:8px;padding:12px 16px;margin-bottom:18px;">
+      <div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--red2);margin-bottom:6px;">⚠ PERHATIAN</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7;">Mode <strong>Ganti Semua</strong> akan menghapus seluruh objek kamu dan diganti dengan master library. Mode <strong>Tambahkan</strong> hanya menambah objek yang belum ada (cek berdasarkan nama).</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">MODE SYNC</label>
+      <select class="form-select" id="syncMode">
+        <option value="replace">Ganti Semua (replace)</option>
+        <option value="merge">Tambahkan Saja (merge)</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost"   onclick="closeModal('syncModal')">Batal</button>
+      <button class="btn btn-success" onclick="confirmSync()">⟳ &nbsp;Sync Sekarang</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════════════ MODAL: IMPORT ═══════════════ -->
 <div class="modal-overlay" id="importModal">
   <div class="modal">
@@ -692,6 +733,7 @@ async function checkPin() {
     document.getElementById("appScreen").style.display  = "block";
     loadObjects();
     loadExtraCategories();
+    checkUpdateNotif();
   } else {
     document.getElementById("lockError").classList.add("show");
     pinBuffer = "";
@@ -1163,6 +1205,84 @@ function syncCategoryDropdown() {
     });
   });
 }
+
+
+// ── SYNC MASTER LIBRARY ──
+window.openSyncModal = async () => {
+  const [masterObjSnap, masterUpdSnap] = await Promise.all([
+    get(ref(db, "master/objects")),
+    get(ref(db, "master/lastUpdated"))
+  ]);
+  const masterCount = masterObjSnap.exists() ? Object.keys(masterObjSnap.val()).length : 0;
+  const lastUpd     = masterUpdSnap.val() ? new Date(masterUpdSnap.val()).toLocaleDateString("id-ID",{day:"2-digit",month:"long",year:"numeric"}) : "—";
+
+  document.getElementById("syncInfo").innerHTML = `
+    <div style="display:flex;gap:20px;flex-wrap:wrap;">
+      <div style="text-align:center;background:rgba(212,168,67,0.06);border:1px solid var(--border);border-radius:8px;padding:14px 20px;">
+        <div style="font-family:'Cinzel',serif;font-size:24px;color:var(--gold2);">${masterCount}</div>
+        <div style="font-size:10px;color:var(--dim);letter-spacing:2px;margin-top:4px;">OBJEK MASTER</div>
+      </div>
+      <div style="text-align:center;background:rgba(212,168,67,0.06);border:1px solid var(--border);border-radius:8px;padding:14px 20px;">
+        <div style="font-family:'Cinzel',serif;font-size:24px;color:var(--gold2);">${allObjects.length}</div>
+        <div style="font-size:10px;color:var(--dim);letter-spacing:2px;margin-top:4px;">OBJEK KAMU</div>
+      </div>
+      <div style="flex:1;min-width:160px;background:rgba(212,168,67,0.06);border:1px solid var(--border);border-radius:8px;padding:14px 20px;">
+        <div style="font-size:11px;color:var(--dim);">Update master terakhir</div>
+        <div style="font-family:'Cinzel',serif;font-size:13px;color:var(--gold2);margin-top:4px;">${lastUpd}</div>
+      </div>
+    </div>`;
+  openModal("syncModal");
+};
+
+window.confirmSync = async () => {
+  const mode       = document.getElementById("syncMode").value;
+  const masterSnap = await get(ref(db, "master/objects"));
+  if (!masterSnap.exists()) { toast("Master library kosong!", "error"); return; }
+
+  const masterData = masterSnap.val();
+
+  if (mode === "replace") {
+    await set(ref(db, `${BASE}/objects`), masterData);
+    toast(`✅ ${Object.keys(masterData).length} objek dari master berhasil di-sync (replace)`, "success");
+  } else {
+    // Merge: hanya tambah yang namanya belum ada
+    const existingNames = new Set(allObjects.map(o => o.name.toLowerCase()));
+    let added = 0;
+    for (const obj of Object.values(masterData)) {
+      if (!existingNames.has((obj.name||"").toLowerCase())) {
+        await push(ref(db, `${BASE}/objects`), obj);
+        added++;
+      }
+    }
+    toast(`✅ ${added} objek baru ditambahkan dari master`, "success");
+  }
+
+  // Dismiss update notification
+  await update(ref(db, `${BASE}/notifications`), { updateAvailable: false });
+  document.getElementById("updateBanner").style.display = "none";
+  closeModal("syncModal");
+};
+
+// ── UPDATE BANNER ──
+async function checkUpdateNotif() {
+  const snap = await get(ref(db, `${BASE}/notifications`));
+  const notif = snap.val() || {};
+  if (notif.updateAvailable) {
+    const banner = document.getElementById("updateBanner");
+    document.getElementById("updateBannerMsg").textContent = notif.updateMessage || "Ada objek baru dari admin!";
+    banner.style.display = "flex";
+  }
+}
+
+window.dismissUpdateBanner = async () => {
+  await update(ref(db, `${BASE}/notifications`), { updateAvailable: false });
+  document.getElementById("updateBanner").style.display = "none";
+};
+
+window.doSyncMaster = () => {
+  closeModal && closeModal("syncModal");
+  openSyncModal();
+};
 
 // ── CHANGE PIN ──
 window.openPinModal = () => {

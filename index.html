@@ -3,30 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wujud Asli</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cinzel+Decorative:wght@400&display=swap" rel="stylesheet">
+<title>Objectif.ID</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,300;1,400&display=swap" rel="stylesheet">
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
-  body { background:#080507; color:#e8ddd0; font-family:"Crimson Text",serif; height:100vh; display:flex; align-items:center; justify-content:center; }
-  .wrap { text-align:center; }
-  h1 { font-family:"Cinzel Decorative",serif; font-size:28px; color:#c9a84c; letter-spacing:6px; text-shadow:0 0 30px rgba(201,168,76,0.5); margin-bottom:8px; }
-  p { font-size:13px; letter-spacing:3px; color:#6a5a55; margin-bottom:40px; font-family:"Cinzel",serif; }
-  .links { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
-  a { display:block; padding:14px 28px; font-family:"Cinzel",serif; font-size:11px; letter-spacing:3px; text-decoration:none; border-radius:2px; transition:all 0.3s; text-transform:uppercase; }
-  .btn-display { background:#8b0000; color:#e8ddd0; border:1px solid rgba(139,0,0,0.4); }
-  .btn-display:hover { background:#a00000; box-shadow:0 0 20px rgba(139,0,0,0.4); }
-  .btn-control { background:transparent; color:#c9a84c; border:1px solid rgba(201,168,76,0.3); }
-  .btn-control:hover { background:rgba(201,168,76,0.08); }
+  body {
+    background:#050308; color:#e8ddd0;
+    font-family:'Cormorant Garamond',serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(ellipse 80% 70% at 50% 50%, #1a0820 0%, #050308 100%);
+  }
+  .wrap { text-align:center; padding:40px 24px; }
+
+  .symbol { font-size:36px; margin-bottom:18px; opacity:0.5; animation:float 4s ease-in-out infinite; display:block; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+
+  h1 {
+    font-family:'Cinzel',serif; font-size:26px; font-weight:700;
+    color:#F0C85A; letter-spacing:6px;
+    text-shadow:0 0 30px rgba(240,200,90,0.5);
+    margin-bottom:6px;
+  }
+  .tagline { font-size:13px; letter-spacing:4px; color:#7a6a55; font-style:italic; margin-bottom:50px; }
+
+  .links { display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  a {
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    padding:18px 26px; font-family:'Cinzel',serif; font-size:10px;
+    letter-spacing:3px; text-decoration:none; border-radius:10px;
+    transition:all 0.25s; text-transform:uppercase; min-width:140px;
+  }
+  a .ico { font-size:24px; }
+
+  .btn-display {
+    background:rgba(155,27,27,0.2); color:#e8ddd0;
+    border:1px solid rgba(155,27,27,0.5);
+  }
+  .btn-display:hover { background:rgba(155,27,27,0.35); box-shadow:0 0 25px rgba(155,27,27,0.35); transform:translateY(-2px); }
+
+  .btn-control {
+    background:transparent; color:#D4A843;
+    border:1px solid rgba(212,168,67,0.3);
+  }
+  .btn-control:hover { background:rgba(212,168,67,0.08); box-shadow:0 0 25px rgba(212,168,67,0.15); transform:translateY(-2px); }
+
+  .btn-edit {
+    background:rgba(30,107,58,0.15); color:#5dbc88;
+    border:1px solid rgba(39,174,96,0.3);
+  }
+  .btn-edit:hover { background:rgba(30,107,58,0.28); box-shadow:0 0 25px rgba(39,174,96,0.2); transform:translateY(-2px); }
+
+  .divider { width:1px; height:60px; background:rgba(212,168,67,0.1); margin:0 4px; align-self:center; }
+
+  .footer { margin-top:48px; font-size:11px; color:#3a2a35; letter-spacing:2px; font-style:italic; }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Wujud Asli</h1>
-  <p>Pembacaan Jiwa</p>
+  <span class="symbol">✦</span>
+  <h1>OBJECTIF.ID</h1>
+  <p class="tagline">Pembacaan jiwa</p>
   <div class="links">
-    <a href="display.html" class="btn-display">📱 Display (HP)</a>
-    <a href="control.html" class="btn-control">💻 Control (Laptop)</a>
+    <a href="display.html" class="btn-display">
+      <span class="ico">📱</span>
+      Display
+    </a>
+    <a href="control.html" class="btn-control">
+      <span class="ico">💻</span>
+      Control
+    </a>
+    <div class="divider"></div>
+    <a href="edit.html" class="btn-edit">
+      <span class="ico">✏️</span>
+      Editor Objek
+    </a>
   </div>
+  <p class="footer">✦ &nbsp; ✦ &nbsp; ✦</p>
 </div>
 </body>
 </html>

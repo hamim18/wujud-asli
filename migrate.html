@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Migrate objects.js → Firebase</title>
+<style>
+  body { background:#050308; color:#e8ddd0; font-family:monospace; padding:30px; }
+  h2   { color:#F0C85A; margin-bottom:20px; }
+  #log { white-space:pre; font-size:13px; line-height:1.8; }
+  .ok  { color:#5dbc88; } .err { color:#e07070; } .info { color:#D4A843; }
+  button { padding:12px 28px; background:#D4A843; color:#050308; border:none; border-radius:6px; font-size:14px; font-weight:700; cursor:pointer; margin-bottom:24px; }
+  button:hover { background:#F0C85A; }
+  button:disabled { opacity:0.4; cursor:default; }
+</style>
+</head>
+<body>
+<h2>🔄 Migrate objects.js → Firebase</h2>
+<button id="migrateBtn" onclick="startMigrate()">Mulai Migrasi</button>
+<div id="log"></div>
+
+<script src="objects.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, push, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
+  authDomain: "wujud-asli.firebaseapp.com",
+  databaseURL: "https://wujud-asli-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wujud-asli",
+  storageBucket: "wujud-asli.firebasestorage.app",
+  messagingSenderId: "925029041014",
+  appId: "1:925029041014:web:ccae53254a649cdb0ab057"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+const log = (msg, cls="") => {
+  const d = document.getElementById("log");
+  d.innerHTML += `<span class="${cls}">${msg}</span>\n`;
+};
+
+window.startMigrate = async () => {
+  const btn = document.getElementById("migrateBtn");
+  btn.disabled = true;
+
+  // Check existing
+  const snap = await get(ref(db, "objects"));
+  if (snap.exists()) {
+    const count = Object.keys(snap.val()).length;
+    log(`⚠️  Firebase sudah ada ${count} objek.`, "err");
+    log(`Lanjut? Data LAMA di Firebase tidak akan dihapus, hanya menambahkan.\n`, "info");
+  }
+
+  log(`📦 Ditemukan ${objects.length} objek di objects.js\n`, "info");
+
+  let ok=0, fail=0;
+  for (let i=0; i<objects.length; i++) {
+    const obj = objects[i];
+    try {
+      await push(ref(db,"objects"), {
+        emoji:       obj.emoji       || "❓",
+        name:        obj.name        || "Tanpa Nama",
+        category:    obj.category    || "tambahan",
+        preview:     obj.preview     || "",
+        full_dark:   obj.full_dark   || "",
+        full_advice: obj.full_advice || ""
+      });
+      ok++;
+      if (ok % 10 === 0) log(`  ✓ ${ok}/${objects.length} — ${obj.emoji} ${obj.name}`, "ok");
+    } catch(e) {
+      fail++;
+      log(`  ✗ Gagal: ${obj.name} — ${e.message}`, "err");
+    }
+  }
+
+  log(`\n🎉 Selesai! ${ok} berhasil, ${fail} gagal.`, "ok");
+  log(`\n→ Buka edit.html untuk melihat semua objek.`, "info");
+  btn.textContent = "✓ Selesai";
+};
+</script>
+</body>
+</html>

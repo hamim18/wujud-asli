@@ -137,9 +137,62 @@
   .ornament-div::before,.ornament-div::after { content:""; flex:1; height:1px; background:linear-gradient(to right,transparent,var(--gold)); }
   .ornament-div::after { background:linear-gradient(to left,transparent,var(--gold)); }
   .ornament-div span { font-size:9px; color:var(--gold); }
+
+  /* ── BACK NAV ── */
+  .back-nav {
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 14px 7px 10px;
+    background: rgba(8,5,7,0.85);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 20px;
+    color: #D4A843;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .back-btn:hover {
+    background: rgba(212,168,67,0.12);
+    border-color: rgba(212,168,67,0.45);
+    box-shadow: 0 0 14px rgba(212,168,67,0.15);
+  }
+  .back-btn .arrow { font-size: 13px; line-height: 1; }
+  .back-btn .label { line-height: 1; }
+
 </style>
 </head>
 <body>
+
+<div class="back-nav" id="backNav" style="display:none;">
+  <a class="back-btn" id="backBtn" href="#">
+    <span class="arrow">‹</span>
+    <span class="label">DASHBOARD</span>
+  </a>
+</div>
+<script>
+  (function() {
+    var uid = new URLSearchParams(location.search).get("u");
+    if (uid) {
+      var nav = document.getElementById("backNav");
+      var btn = document.getElementById("backBtn");
+      if (nav && btn) {
+        nav.style.display = "flex";
+        btn.href = "live.html?u=" + uid;
+      }
+    }
+  })();
+</script>
+
 <div class="layout">
 
   <!-- MAIN COLUMN -->
@@ -231,7 +284,7 @@
     document.getElementById("connText").textContent = ok ? "Terhubung" : "Terputus...";
   });
 
-  // ---- Load objects from Firebase user workspace ----
+  // ---- Load objects dari Firebase user workspace ----
   const COOLDOWN_TURNS  = 10;
   const SCAN_DURATION   = 2500;
   const REVEAL_DURATION = 12000;
@@ -245,9 +298,7 @@
   let timerInterval = null;
 
   const objSnap = await get(ref(db, `${BASE}/objects`));
-  if (objSnap.exists()) {
-    objects = Object.values(objSnap.val());
-  }
+  if (objSnap.exists()) objects = Object.values(objSnap.val());
 
   function pickObject() {
     for (const cat in categoryCooldown) { if (categoryCooldown[cat] > 0) categoryCooldown[cat]--; }
@@ -281,7 +332,7 @@
 
   window.doReveal = function() {
     if (isAnimating) return;
-    if (!objects.length) { alert('Belum ada objek! Tambahkan dulu di Editor.'); return; }
+    if (!objects.length) { alert('Belum ada objek! Tambahkan dulu di Editor Objek.'); return; }
     const name = document.getElementById("nameInput").value.trim();
     if (!name) { document.getElementById("nameInput").focus(); return; }
 

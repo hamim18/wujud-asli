@@ -305,6 +305,38 @@
     .form-row { grid-template-columns:60px 1fr; }
     .modal { padding:20px; }
   }
+
+  /* ── BACK NAV ── */
+  .back-nav {
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 14px 7px 10px;
+    background: rgba(8,5,7,0.85);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 20px;
+    color: #D4A843;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .back-btn:hover {
+    background: rgba(212,168,67,0.12);
+    border-color: rgba(212,168,67,0.45);
+    box-shadow: 0 0 14px rgba(212,168,67,0.15);
+  }
+  .back-btn .arrow { font-size: 13px; line-height: 1; }
+  .back-btn .label { line-height: 1; }
+
 </style>
 </head>
 <body>
@@ -340,6 +372,27 @@
 
 <!-- ═══════════════ APP ═══════════════ -->
 <div id="appScreen">
+
+<div class="back-nav" id="backNav" style="display:none;">
+  <a class="back-btn" id="backBtn" href="#">
+    <span class="arrow">‹</span>
+    <span class="label">DASHBOARD</span>
+  </a>
+</div>
+<script>
+  (function() {
+    var uid = new URLSearchParams(location.search).get("u");
+    if (uid) {
+      var nav = document.getElementById("backNav");
+      var btn = document.getElementById("backBtn");
+      if (nav && btn) {
+        nav.style.display = "flex";
+        btn.href = "live.html?u=" + uid;
+      }
+    }
+  })();
+</script>
+
 
   <!-- Header -->
   <div class="app-header">
@@ -581,7 +634,6 @@ const db  = getDatabase(app);
 const uid = new URLSearchParams(location.search).get("u");
 if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
 
-// Cek subscription
 const _subSnap = await get(ref(db, `users/${uid}/subscription`));
 const _sub = _subSnap.val();
 if (!_sub || _sub.status !== "active" || _sub.expiresAt < Date.now()) {
@@ -590,21 +642,16 @@ if (!_sub || _sub.status !== "active" || _sub.expiresAt < Date.now()) {
 
 const BASE = `users/${uid}`;
 
-// Handle sync from live.html?sync=1
+// Handle sync dari live.html?sync=1
 if (new URLSearchParams(location.search).get("sync") === "1") {
   const masterSnap = await get(ref(db, "master/objects"));
   if (masterSnap.exists()) {
-    await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js")
-      .then(m => m.set(ref(db, `${BASE}/objects`), masterSnap.val()));
-    // Dismiss update notification
-    await get(ref(db, `${BASE}/notifications`))
-      .then(() => import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js")
-        .then(m => m.update(ref(db, `${BASE}/notifications`), { updateAvailable: false })));
+    await set(ref(db, `${BASE}/objects`), masterSnap.val());
+    await update(ref(db, `${BASE}/notifications`), { updateAvailable: false });
   }
-  // Remove sync param from URL
-  const url = new URL(location.href);
-  url.searchParams.delete("sync");
-  history.replaceState({}, "", url);
+  const _url = new URL(location.href);
+  _url.searchParams.delete("sync");
+  history.replaceState({}, "", _url);
 }
 
 // ── STATE ──

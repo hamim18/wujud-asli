@@ -287,9 +287,62 @@
   .conn-dot.connected    { background:#2d6b1b; box-shadow:0 0 6px rgba(45,107,27,0.8); }
   .conn-dot.disconnected { background:#8b1b1b; animation:blink-red 1s infinite; }
   @keyframes blink-red { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* ── BACK NAV ── */
+  .back-nav {
+    position: fixed;
+    top: 12px; left: 12px;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 14px 7px 10px;
+    background: rgba(8,5,7,0.85);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 20px;
+    color: #D4A843;
+    font-family: 'Cinzel', serif;
+    font-size: 10px; letter-spacing: 2px;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .back-btn:hover {
+    background: rgba(212,168,67,0.12);
+    border-color: rgba(212,168,67,0.45);
+    box-shadow: 0 0 14px rgba(212,168,67,0.15);
+  }
+  .back-btn .arrow { font-size: 13px; line-height: 1; }
+  .back-btn .label { line-height: 1; }
+
 </style>
 </head>
 <body>
+
+<div class="back-nav" id="backNav" style="display:none;">
+  <a class="back-btn" id="backBtn" href="#">
+    <span class="arrow">‹</span>
+    <span class="label">DASHBOARD</span>
+  </a>
+</div>
+<script>
+  (function() {
+    var uid = new URLSearchParams(location.search).get("u");
+    if (uid) {
+      var nav = document.getElementById("backNav");
+      var btn = document.getElementById("backBtn");
+      if (nav && btn) {
+        nav.style.display = "flex";
+        btn.href = "live.html?u=" + uid;
+      }
+    }
+  })();
+</script>
+
 
 <div class="bg-scanlines"></div>
 
@@ -481,7 +534,6 @@
 
   const BASE    = `users/${uid}`;
   const connDot = document.getElementById("connDot");
-
   onValue(ref(db, ".info/connected"), snap => {
     connDot.className = "conn-dot " + (snap.val() ? "connected" : "disconnected");
   });

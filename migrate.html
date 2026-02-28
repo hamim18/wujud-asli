@@ -14,7 +14,7 @@
 </style>
 </head>
 <body>
-<h2>🔄 Migrate objects.js → Firebase Master Library</h2>
+<h2>🔄 Migrate objects.js → Master Library Firebase</h2>
 <button id="migrateBtn" onclick="startMigrate()">Mulai Migrasi</button>
 <div id="log"></div>
 
@@ -49,8 +49,7 @@ window.startMigrate = async () => {
   const snap = await get(ref(db, "master/objects"));
   if (snap.exists()) {
     const count = Object.keys(snap.val()).length;
-    log(`⚠️  Master library sudah ada ${count} objek.`, "err");
-    log(`Lanjut? Data LAMA tidak akan dihapus, hanya menambahkan.\n`, "info");
+    log(`⚠️  Master library sudah ada ${count} objek. Lanjut akan MENAMBAHKAN (tidak menimpa).\n`, "err");
   }
 
   log(`📦 Ditemukan ${objects.length} objek di objects.js\n`, "info");
@@ -76,8 +75,8 @@ window.startMigrate = async () => {
   }
 
   log(`\n🎉 Selesai! ${ok} berhasil, ${fail} gagal.`, "ok");
-  log(`\n→ Master library siap! User baru akan otomatis mendapat data ini saat aktivasi.`, "info");
-  log(`→ Untuk user yang sudah ada, gunakan tombol Push Update di admin.html`, "info");
+  log(`\n✅ Master library siap! User baru akan otomatis dapat data ini saat aktivasi.`, "info");
+  log(`→ Untuk user yang sudah ada: buka admin.html → tab Master Library → Push Update`, "info");
   btn.textContent = "✓ Selesai";
 };
 </script>

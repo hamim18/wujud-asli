@@ -1,7 +1,9 @@
-const CACHE = "wujud-asli-v1";
+const CACHE = "objectif-v2";
 const ASSETS = [
   "/display.html",
   "/control.html",
+  "/live.html",
+  "/activate.html",
   "/manifest-display.json",
   "/manifest-control.json"
 ];
@@ -19,11 +21,6 @@ self.addEventListener("activate", e => {
 });
 
 self.addEventListener("fetch", e => {
-  // Network first for Firebase, cache first for static assets
-  if (e.request.url.includes("firebase") || e.request.url.includes("googleapis")) {
-    return; // let Firebase handle its own requests
-  }
-  e.respondWith(
-    fetch(e.request).catch(() => caches.match(e.request))
-  );
+  if (e.request.url.includes("firebase") || e.request.url.includes("googleapis")) return;
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });

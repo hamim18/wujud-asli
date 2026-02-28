@@ -577,6 +577,36 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
+// ── MULTI-USER ROUTING ──
+const uid = new URLSearchParams(location.search).get("u");
+if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
+
+// Cek subscription
+const _subSnap = await get(ref(db, `users/${uid}/subscription`));
+const _sub = _subSnap.val();
+if (!_sub || _sub.status !== "active" || _sub.expiresAt < Date.now()) {
+  location.href = `live.html?u=${uid}`; throw new Error("Expired");
+}
+
+const BASE = `users/${uid}`;
+
+// Handle sync from live.html?sync=1
+if (new URLSearchParams(location.search).get("sync") === "1") {
+  const masterSnap = await get(ref(db, "master/objects"));
+  if (masterSnap.exists()) {
+    await import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js")
+      .then(m => m.set(ref(db, `${BASE}/objects`), masterSnap.val()));
+    // Dismiss update notification
+    await get(ref(db, `${BASE}/notifications`))
+      .then(() => import("https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js")
+        .then(m => m.update(ref(db, `${BASE}/notifications`), { updateAvailable: false })));
+  }
+  // Remove sync param from URL
+  const url = new URL(location.href);
+  url.searchParams.delete("sync");
+  history.replaceState({}, "", url);
+}
+
 // ── STATE ──
 let allObjects   = [];  // [{id, emoji, name, category, preview, full_dark, full_advice}]
 let filtered     = [];
@@ -606,7 +636,7 @@ function updatePinDots() {
 
 async function checkPin() {
   // Load pin from Firebase
-  const snap = await get(ref(db, "config/pin"));
+  const snap = await get(ref(db, `${BASE}/config/pin`));
   const storedPin = snap.val() || "1234";
   currentPin = storedPin;
 
@@ -625,7 +655,7 @@ async function checkPin() {
 
 // ── LOAD OBJECTS FROM FIREBASE ──
 function loadObjects() {
-  onValue(ref(db, "objects"), snap => {
+  onValue(ref(db, `${BASE}/objects`), snap => {
     const data = snap.val() || {};
     allObjects = Object.entries(data).map(([id, obj]) => ({id, ...obj}));
     // Sort by name
@@ -791,10 +821,10 @@ window.saveObject = async () => {
 
   try {
     if (editingId) {
-      await update(ref(db, `objects/${editingId}`), data);
+      await update(ref(db, `${BASE}/objects/${editingId}`), data);
       toast(`✅ ${name} berhasil diupdate`, "success");
     } else {
-      await push(ref(db, "objects"), data);
+      await push(ref(db, `${BASE}/objects`), data);
       toast(`✅ ${name} berhasil ditambahkan`, "success");
     }
     closeModal("editModal");
@@ -816,7 +846,7 @@ window.confirmDelete = async () => {
   if (!deletingId) return;
   const obj = allObjects.find(o=>o.id===deletingId);
   try {
-    await remove(ref(db, `objects/${deletingId}`));
+    await remove(ref(db, `${BASE}/objects/${deletingId}`));
     toast(`🗑 ${obj?.name||"Objek"} dihapus`, "info");
     closeModal("confirmModal");
   } catch(e) {
@@ -840,7 +870,7 @@ window.doImport = async () => {
   let count = 0;
   for (const obj of arr) {
     if (!obj.name||!obj.emoji) continue;
-    await push(ref(db, "objects"), {
+    await push(ref(db, `${BASE}/objects`), {
       emoji:      obj.emoji||"❓",
       name:       obj.name||"",
       category:   obj.category||"tambahan",
@@ -887,7 +917,7 @@ function getCategories() {
 
 async function renderCatList() {
   const fromObjs = getCategories(); // {cat: count}
-  const snap     = await get(ref(db, "config/categories"));
+  const snap     = await get(ref(db, `${BASE}/config/categories`));
   const configCats = snap.val() || [];
 
   // Gabung semua: dari objek + dari config (termasuk yang kosong)
@@ -955,7 +985,7 @@ window.doRename = async (oldCat) => {
 
   try {
     for (const obj of targets) {
-      await update(ref(db, `objects/${obj.id}`), { category: newCat });
+      await update(ref(db, `${BASE}/objects/${obj.id}`), { category: newCat });
     }
     // Update dropdown form juga
     updateCategoryDropdown(oldCat, newCat);
@@ -973,14 +1003,14 @@ window.addCategory = async () => {
   if (!name) { toast("Nama kategori tidak boleh kosong!", "error"); return; }
 
   // Cek duplikat dari objek + config
-  const snap     = await get(ref(db, "config/categories"));
+  const snap     = await get(ref(db, `${BASE}/config/categories`));
   const existing = snap.val() || [];
   const fromObjs = [...new Set(allObjects.map(o => o.category).filter(Boolean))];
   const allCats  = [...new Set([...existing, ...fromObjs])];
   if (allCats.includes(name)) { toast(`Kategori "${name}" sudah ada!`, "error"); return; }
 
   // Simpan ke Firebase config
-  await set(ref(db, "config/categories"), [...existing, name]);
+  await set(ref(db, `${BASE}/config/categories`), [...existing, name]);
 
   // Tambah ke dropdown form
   addCategoryOption(name);
@@ -1021,7 +1051,7 @@ window.confirmDeleteCat = async () => {
     toast(`Memindahkan ${targets.length} objek ke "${targetCat}"...`, "info");
     try {
       for (const obj of targets) {
-        await update(ref(db, `objects/${obj.id}`), { category: targetCat });
+        await update(ref(db, `${BASE}/objects/${obj.id}`), { category: targetCat });
       }
     } catch(e) {
       toast("Gagal memindahkan objek: "+e.message, "error"); return;
@@ -1029,9 +1059,9 @@ window.confirmDeleteCat = async () => {
   }
 
   // Hapus dari config/categories
-  const snap = await get(ref(db, "config/categories"));
+  const snap = await get(ref(db, `${BASE}/config/categories`));
   const cats  = (snap.val() || []).filter(c => c !== deletingCat);
-  await set(ref(db, "config/categories"), cats);
+  await set(ref(db, `${BASE}/config/categories`), cats);
 
   // Hapus dari dropdown form
   const sel = document.getElementById("fCategory");
@@ -1061,7 +1091,7 @@ function addCategoryOption(name) {
 }
 
 async function loadExtraCategories() {
-  const snap = await get(ref(db, "config/categories"));
+  const snap = await get(ref(db, `${BASE}/config/categories`));
   const cats  = snap.val() || [];
   cats.forEach(addCategoryOption);
 }
@@ -1078,7 +1108,7 @@ function syncCategoryDropdown() {
   });
 
   // Hapus yang sudah tidak ada di objek maupun config
-  get(ref(db, "config/categories")).then(snap => {
+  get(ref(db, `${BASE}/config/categories`)).then(snap => {
     const configCats = snap.val() || [];
     const allValid   = [...new Set([...fromObjects, ...configCats])];
     Array.from(sel.options).forEach(opt => {
@@ -1094,7 +1124,7 @@ window.openPinModal = () => {
 };
 
 window.doChangePin = async () => {
-  const snap = await get(ref(db,"config/pin"));
+  const snap = await get(ref(db, `${BASE}/config/pin`));
   const stored = snap.val()||"1234";
   const old    = document.getElementById("pinOld").value;
   const nw     = document.getElementById("pinNew").value;
@@ -1105,7 +1135,7 @@ window.doChangePin = async () => {
   if (!/^\d{4}$/.test(nw)) { toast("PIN hanya boleh angka!", "error"); return; }
   if (nw !== conf)          { toast("Konfirmasi PIN tidak cocok!", "error"); return; }
 
-  await set(ref(db,"config/pin"), nw);
+  await set(ref(db, `${BASE}/config/pin`), nw);
   currentPin = nw;
   toast("✅ PIN berhasil diubah", "success");
   closeModal("pinModal");

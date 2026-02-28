@@ -193,12 +193,10 @@
 </div>
 
 <!-- Objects data must load before module -->
-<script src="objects.js"></script>
-
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
@@ -212,7 +210,19 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
-  const sessionRef = ref(db, "session");
+
+  // ── MULTI-USER ROUTING ──
+  const uid = new URLSearchParams(location.search).get("u");
+  if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
+
+  const subSnap = await get(ref(db, `users/${uid}/subscription`));
+  const sub = subSnap.val();
+  if (!sub || sub.status !== "active" || sub.expiresAt < Date.now()) {
+    location.href = `live.html?u=${uid}`; throw new Error("Expired");
+  }
+
+  const BASE       = `users/${uid}`;
+  const sessionRef = ref(db, `${BASE}/session`);
 
   // Connection monitor
   onValue(ref(db, ".info/connected"), snap => {
@@ -221,17 +231,23 @@
     document.getElementById("connText").textContent = ok ? "Terhubung" : "Terputus...";
   });
 
-  // ---- Objects data ----
-  const COOLDOWN_TURNS = 10;
-  const SCAN_DURATION  = 2500;
+  // ---- Load objects from Firebase user workspace ----
+  const COOLDOWN_TURNS  = 10;
+  const SCAN_DURATION   = 2500;
   const REVEAL_DURATION = 12000;
   const FADE_DURATION   = 2000;
 
+  let objects = [];
   const categoryCooldown = {};
   let currentIndex = null;
-  let history = [];
-  let isAnimating = false;
+  let history      = [];
+  let isAnimating  = false;
   let timerInterval = null;
+
+  const objSnap = await get(ref(db, `${BASE}/objects`));
+  if (objSnap.exists()) {
+    objects = Object.values(objSnap.val());
+  }
 
   function pickObject() {
     for (const cat in categoryCooldown) { if (categoryCooldown[cat] > 0) categoryCooldown[cat]--; }
@@ -265,6 +281,7 @@
 
   window.doReveal = function() {
     if (isAnimating) return;
+    if (!objects.length) { alert('Belum ada objek! Tambahkan dulu di Editor.'); return; }
     const name = document.getElementById("nameInput").value.trim();
     if (!name) { document.getElementById("nameInput").focus(); return; }
 

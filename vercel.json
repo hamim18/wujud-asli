@@ -1,6 +1,24 @@
 {
   "rewrites": [
-    { "source": "/display", "destination": "/display.html" },
-    { "source": "/control", "destination": "/control.html" }
+    {
+      "source": "/display",
+      "destination": "/display.html"
+    },
+    {
+      "source": "/control",
+      "destination": "/control.html"
+    },
+    {
+      "source": "/live",
+      "destination": "/live.html"
+    },
+    {
+      "source": "/activate",
+      "destination": "/activate.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
   ]
 }

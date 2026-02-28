@@ -14,7 +14,7 @@
 </style>
 </head>
 <body>
-<h2>🔄 Migrate objects.js → Firebase</h2>
+<h2>🔄 Migrate objects.js → Firebase Master Library</h2>
 <button id="migrateBtn" onclick="startMigrate()">Mulai Migrasi</button>
 <div id="log"></div>
 
@@ -46,11 +46,11 @@ window.startMigrate = async () => {
   btn.disabled = true;
 
   // Check existing
-  const snap = await get(ref(db, "objects"));
+  const snap = await get(ref(db, "master/objects"));
   if (snap.exists()) {
     const count = Object.keys(snap.val()).length;
-    log(`⚠️  Firebase sudah ada ${count} objek.`, "err");
-    log(`Lanjut? Data LAMA di Firebase tidak akan dihapus, hanya menambahkan.\n`, "info");
+    log(`⚠️  Master library sudah ada ${count} objek.`, "err");
+    log(`Lanjut? Data LAMA tidak akan dihapus, hanya menambahkan.\n`, "info");
   }
 
   log(`📦 Ditemukan ${objects.length} objek di objects.js\n`, "info");
@@ -59,7 +59,7 @@ window.startMigrate = async () => {
   for (let i=0; i<objects.length; i++) {
     const obj = objects[i];
     try {
-      await push(ref(db,"objects"), {
+      await push(ref(db,"master/objects"), {
         emoji:       obj.emoji       || "❓",
         name:        obj.name        || "Tanpa Nama",
         category:    obj.category    || "tambahan",
@@ -76,7 +76,8 @@ window.startMigrate = async () => {
   }
 
   log(`\n🎉 Selesai! ${ok} berhasil, ${fail} gagal.`, "ok");
-  log(`\n→ Buka edit.html untuk melihat semua objek.`, "info");
+  log(`\n→ Master library siap! User baru akan otomatis mendapat data ini saat aktivasi.`, "info");
+  log(`→ Untuk user yang sudah ada, gunakan tombol Push Update di admin.html`, "info");
   btn.textContent = "✓ Selesai";
 };
 </script>

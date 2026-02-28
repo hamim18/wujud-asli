@@ -454,7 +454,7 @@
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+  import { getDatabase, ref, onValue, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
@@ -468,7 +468,20 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getDatabase(app);
+
+  // ── MULTI-USER ROUTING ──
+  const uid = new URLSearchParams(location.search).get("u");
+  if (!uid) { location.href = "live.html"; throw new Error("No userId"); }
+
+  const subSnap = await get(ref(db, `users/${uid}/subscription`));
+  const sub = subSnap.val();
+  if (!sub || sub.status !== "active" || sub.expiresAt < Date.now()) {
+    location.href = `live.html?u=${uid}`; throw new Error("Expired");
+  }
+
+  const BASE    = `users/${uid}`;
   const connDot = document.getElementById("connDot");
+
   onValue(ref(db, ".info/connected"), snap => {
     connDot.className = "conn-dot " + (snap.val() ? "connected" : "disconnected");
   });
@@ -494,7 +507,7 @@
     }));
   }
 
-  onValue(ref(db, "session"), snap => {
+  onValue(ref(db, `${BASE}/session`), snap => {
     const data = snap.val(); if (!data) return;
     const key = data.state + (data.name||"") + (data.ts||"");
     if (key === lastKey) return; lastKey = key;

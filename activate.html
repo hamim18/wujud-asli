@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objectif.ID — Aktivasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#050308; --gold:#D4A843; --gold2:#F0C85A; --red2:#c0392b; --green2:#27ae60; --text:#e8ddd0; --dim:#7a6a55; --border:rgba(212,168,67,0.15); --input-bg:#0a0710; --panel:#0e0a12; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100%; background:var(--bg); color:var(--text); font-family:'Cormorant Garamond',Georgia,serif; }
+  body {
+    display:flex; align-items:center; justify-content:center; min-height:100vh; padding:24px;
+    background:radial-gradient(ellipse 80% 70% at 50% 50%, #1a0820 0%, #050308 100%);
+  }
+
+  .card {
+    background:var(--panel); border:1px solid var(--border); border-radius:16px;
+    padding:40px 36px; width:100%; max-width:440px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+    animation:card-in 0.4s ease;
+  }
+  @keyframes card-in { from{opacity:0;transform:translateY(24px);} to{opacity:1;transform:translateY(0);} }
+
+  .card-brand { text-align:center; margin-bottom:32px; }
+  .brand-symbol { font-size:32px; margin-bottom:10px; opacity:0.6; display:block; animation:float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .brand-name { font-family:'Cinzel',serif; font-size:18px; font-weight:700; letter-spacing:5px; color:var(--gold2); }
+  .brand-sub  { font-style:italic; font-size:12px; color:var(--dim); letter-spacing:2px; margin-top:4px; }
+
+  /* STEPS */
+  .steps { display:flex; gap:0; margin-bottom:28px; }
+  .step { flex:1; text-align:center; position:relative; }
+  .step::after { content:""; position:absolute; top:14px; left:50%; width:100%; height:1px; background:var(--border); z-index:0; }
+  .step:last-child::after { display:none; }
+  .step-num {
+    width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
+    background:var(--panel); color:var(--dim); font-family:'Cinzel',serif; font-size:11px;
+    display:flex; align-items:center; justify-content:center; margin:0 auto 6px; position:relative; z-index:1;
+    transition:all 0.3s;
+  }
+  .step.active .step-num  { border-color:var(--gold); color:var(--gold2); background:rgba(212,168,67,0.1); }
+  .step.done  .step-num   { border-color:var(--green2); color:var(--green2); background:rgba(39,174,96,0.1); }
+  .step-label { font-family:'Cinzel',serif; font-size:8px; letter-spacing:2px; color:var(--dim); }
+  .step.active .step-label { color:var(--gold); }
+  .step.done   .step-label { color:var(--green2); }
+
+  /* PANES */
+  .pane { display:none; }
+  .pane.active { display:block; }
+
+  .pane-title { font-family:'Cinzel',serif; font-size:13px; letter-spacing:3px; color:var(--gold); margin-bottom:6px; }
+  .pane-desc  { font-size:13px; color:var(--dim); font-style:italic; line-height:1.7; margin-bottom:20px; }
+
+  .form-group { margin-bottom:16px; }
+  .form-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--dim); display:block; margin-bottom:7px; }
+  .form-input {
+    width:100%; padding:12px 16px; background:var(--input-bg); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:15px; outline:none; transition:border 0.2s;
+    font-family:'Cormorant Garamond',serif; letter-spacing:2px;
+  }
+  .form-input:focus { border-color:var(--gold); }
+  .form-input::placeholder { color:var(--dim); letter-spacing:1px; }
+
+  .btn {
+    width:100%; padding:13px; border-radius:8px; border:none; cursor:pointer;
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; transition:all 0.2s;
+  }
+  .btn-primary { background:var(--gold); color:#050308; }
+  .btn-primary:hover { background:var(--gold2); box-shadow:0 0 20px rgba(212,168,67,0.4); }
+  .btn-primary:disabled { opacity:0.5; cursor:default; }
+
+  .error-msg { font-size:12px; color:var(--red2); margin-top:8px; text-align:center; min-height:18px; }
+  .success-msg { font-size:12px; color:var(--green2); margin-top:8px; text-align:center; }
+
+  /* PIN DOTS */
+  .pin-dots { display:flex; gap:12px; justify-content:center; margin:16px 0; }
+  .pin-dot  { width:14px; height:14px; border-radius:50%; border:1.5px solid var(--gold); opacity:0.4; transition:all 0.2s; }
+  .pin-dot.filled { background:var(--gold); opacity:1; box-shadow:0 0 10px rgba(212,168,67,0.6); }
+  .pin-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .pin-btn  { height:52px; border-radius:8px; background:rgba(212,168,67,0.06); border:1px solid var(--border); color:var(--gold2); font-family:'Cinzel',serif; font-size:18px; cursor:pointer; transition:all 0.15s; }
+  .pin-btn:hover  { background:rgba(212,168,67,0.12); }
+  .pin-btn:active { transform:scale(0.95); }
+  .pin-btn.del-btn { font-size:14px; color:var(--dim); }
+
+  /* SUCCESS */
+  .success-card { text-align:center; padding:10px 0; }
+  .success-icon { font-size:48px; margin-bottom:16px; animation:bounce 0.6s ease; }
+  @keyframes bounce { 0%{transform:scale(0);} 70%{transform:scale(1.15);} 100%{transform:scale(1);} }
+  .success-title { font-family:'Cinzel',serif; font-size:16px; letter-spacing:4px; color:var(--gold2); margin-bottom:8px; }
+  .success-sub   { font-size:13px; color:var(--dim); font-style:italic; line-height:1.7; }
+  .user-id-display { font-family:monospace; font-size:13px; background:rgba(212,168,67,0.08); border:1px solid var(--border); border-radius:6px; padding:8px 16px; margin:12px 0; letter-spacing:2px; color:var(--gold); display:inline-block; }
+
+  .spinner { display:inline-block; width:20px; height:20px; border:2px solid rgba(212,168,67,0.3); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:8px; }
+  @keyframes spin { to{transform:rotate(360deg);} }
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="card-brand">
+    <span class="brand-symbol">✦</span>
+    <div class="brand-name">OBJECTIF.ID</div>
+    <div class="brand-sub">Aktivasi Layanan</div>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps">
+    <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">KODE</div></div>
+    <div class="step"        id="step2"><div class="step-num">2</div><div class="step-label">PROFIL</div></div>
+    <div class="step"        id="step3"><div class="step-num">3</div><div class="step-label">PIN</div></div>
+    <div class="step"        id="step4"><div class="step-num">✓</div><div class="step-label">SELESAI</div></div>
+  </div>
+
+  <!-- PANE 1: Kode Aktivasi -->
+  <div class="pane active" id="pane1">
+    <div class="pane-title">MASUKKAN KODE AKTIVASI</div>
+    <div class="pane-desc">Masukkan kode 8 karakter yang kamu terima setelah pembayaran dikonfirmasi.</div>
+    <div class="form-group">
+      <label class="form-label">KODE AKTIVASI</label>
+      <input class="form-input" id="codeInput" placeholder="XXXX-XXXX" maxlength="9" autocomplete="off" style="text-align:center;font-size:22px;letter-spacing:6px;text-transform:uppercase;"
+        oninput="formatCode(this)" onkeydown="if(event.key==='Enter')validateCode()">
+    </div>
+    <button class="btn btn-primary" id="codeBtn" onclick="validateCode()">VERIFIKASI KODE</button>
+    <div class="error-msg" id="codeError"></div>
+  </div>
+
+  <!-- PANE 2: Profil -->
+  <div class="pane" id="pane2">
+    <div class="pane-title">INFORMASI AKUN</div>
+    <div class="pane-desc">Berikan nama untuk akunmu. Ini akan ditampilkan di panel admin.</div>
+    <div class="form-group">
+      <label class="form-label">NAMA KAMU</label>
+      <input class="form-input" id="nameInput" placeholder="Nama lengkap atau nickname" style="letter-spacing:1px;" maxlength="50">
+    </div>
+    <button class="btn btn-primary" onclick="goToPin()">LANJUT →</button>
+    <div class="error-msg" id="nameError"></div>
+  </div>
+
+  <!-- PANE 3: Set PIN -->
+  <div class="pane" id="pane3">
+    <div class="pane-title">BUAT PIN EDITOR</div>
+    <div class="pane-desc">PIN ini digunakan untuk mengakses Editor Objek. Pilih 4 angka yang mudah kamu ingat.</div>
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-grid">
+      <button class="pin-btn" onclick="pinPress('1')">1</button>
+      <button class="pin-btn" onclick="pinPress('2')">2</button>
+      <button class="pin-btn" onclick="pinPress('3')">3</button>
+      <button class="pin-btn" onclick="pinPress('4')">4</button>
+      <button class="pin-btn" onclick="pinPress('5')">5</button>
+      <button class="pin-btn" onclick="pinPress('6')">6</button>
+      <button class="pin-btn" onclick="pinPress('7')">7</button>
+      <button class="pin-btn" onclick="pinPress('8')">8</button>
+      <button class="pin-btn" onclick="pinPress('9')">9</button>
+      <button class="pin-btn del-btn" onclick="pinDel()">⌫</button>
+      <button class="pin-btn" onclick="pinPress('0')">0</button>
+      <button class="pin-btn del-btn" onclick="pinClear()" style="font-size:10px;letter-spacing:1px;">CLR</button>
+    </div>
+    <div class="error-msg" id="pinError"></div>
+  </div>
+
+  <!-- PANE 4: Success -->
+  <div class="pane" id="pane4">
+    <div class="success-card">
+      <div class="success-icon">🎉</div>
+      <div class="success-title">AKTIVASI BERHASIL!</div>
+      <div class="success-sub">Akunmu sudah siap. Simpan link berikut untuk mengakses layanan:</div>
+      <div class="user-id-display" id="userLink"></div>
+      <div class="success-sub" style="font-size:11px;margin-top:8px;">Klik link di atas untuk langsung masuk</div>
+    </div>
+    <br>
+    <button class="btn btn-primary" id="goLiveBtn" onclick="goToLive()">MASUK KE DASHBOARD →</button>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, get, set, push, update, query, orderByChild, equalTo }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
+  authDomain: "wujud-asli.firebaseapp.com",
+  databaseURL: "https://wujud-asli-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wujud-asli",
+  storageBucket: "wujud-asli.firebasestorage.app",
+  messagingSenderId: "925029041014",
+  appId: "1:925029041014:web:ccae53254a649cdb0ab057"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+let validatedCodeId  = null;
+let validatedCodeData = null;
+let newUserId        = null;
+let pinBuffer        = "";
+
+// ── FORMAT CODE INPUT ──
+window.formatCode = (el) => {
+  let v = el.value.replace(/[^A-Z0-9a-z]/g,"").toUpperCase().slice(0,8);
+  if (v.length > 4) v = v.slice(0,4)+"-"+v.slice(4);
+  el.value = v;
+};
+
+// ── STEP 1: VALIDATE CODE ──
+window.validateCode = async () => {
+  const raw  = document.getElementById("codeInput").value.replace("-","").trim().toUpperCase();
+  const err  = document.getElementById("codeError");
+  const btn  = document.getElementById("codeBtn");
+  if (raw.length < 6) { err.textContent = "Kode terlalu pendek."; return; }
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner"></span>Memverifikasi...`;
+  err.textContent = "";
+
+  // Cari kode di pendingCodes
+  const snap = await get(ref(db, "pendingCodes"));
+  const codes = snap.val() || {};
+  const found = Object.entries(codes).find(([,c]) => c.code === raw && !c.used);
+
+  if (!found) {
+    err.textContent = "Kode tidak valid atau sudah digunakan.";
+    btn.disabled = false;
+    btn.textContent = "VERIFIKASI KODE";
+    return;
+  }
+
+  [validatedCodeId, validatedCodeData] = found;
+
+  // Pre-fill name from code data
+  if (validatedCodeData.name) {
+    document.getElementById("nameInput").value = validatedCodeData.name;
+  }
+
+  goStep(2);
+  btn.disabled = false;
+  btn.textContent = "VERIFIKASI KODE";
+};
+
+// ── STEP 2: NAME ──
+window.goToPin = () => {
+  const name = document.getElementById("nameInput").value.trim();
+  if (!name) { document.getElementById("nameError").textContent = "Nama tidak boleh kosong!"; return; }
+  document.getElementById("nameError").textContent = "";
+  goStep(3);
+};
+
+// ── STEP 3: PIN ──
+window.pinPress = (d) => {
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += d;
+  updatePinDots();
+  if (pinBuffer.length === 4) setTimeout(doActivate, 300);
+};
+window.pinDel   = () => { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); };
+window.pinClear = () => { pinBuffer = ""; updatePinDots(); };
+
+function updatePinDots() {
+  for (let i=0;i<4;i++) document.getElementById("pd"+i).classList.toggle("filled", i < pinBuffer.length);
+}
+
+// ── ACTIVATE ──
+async function doActivate() {
+  const name     = document.getElementById("nameInput").value.trim();
+  const pin      = pinBuffer;
+  const dur      = validatedCodeData.durationDays || 7;
+  const now      = Date.now();
+  const expiry   = now + dur*24*60*60*1000;
+
+  // Generate userId
+  const uid = genUserId();
+  newUserId = uid;
+
+  // Copy master library to user workspace
+  const [masterObjs, masterCats] = await Promise.all([
+    get(ref(db, "master/objects")),
+    get(ref(db, "master/categories"))
+  ]);
+
+  const userData = {
+    info: { name, activatedAt: now, codeUsed: validatedCodeData.code },
+    subscription: { status: "active", expiresAt: expiry, activatedAt: now, plan: "weekly" },
+    config: { pin },
+    session: { state: "idle" },
+    notifications: { updateAvailable: false }
+  };
+
+  // Write user data
+  await set(ref(db, `users/${uid}`), userData);
+
+  // Copy master objects
+  if (masterObjs.exists()) {
+    await set(ref(db, `users/${uid}/objects`), masterObjs.val());
+  }
+  if (masterCats.exists()) {
+    await set(ref(db, `users/${uid}/config/categories`), masterCats.val());
+  }
+
+  // Mark code as used
+  await update(ref(db, `pendingCodes/${validatedCodeId}`), { used: true, usedAt: now, usedBy: uid });
+
+  // Show success
+  const link = `${location.origin}/live.html?u=${uid}`;
+  document.getElementById("userLink").textContent = link;
+  document.getElementById("userLink").onclick = () => window.open(link, "_blank");
+  document.getElementById("userLink").style.cursor = "pointer";
+  goStep(4);
+}
+
+window.goToLive = () => {
+  location.href = `live.html?u=${newUserId}`;
+};
+
+function genUserId() {
+  const chars = "abcdefghjkmnpqrstuvwxyz23456789";
+  return Array.from({length:8}, () => chars[Math.floor(Math.random()*chars.length)]).join("");
+}
+
+// ── STEPS ──
+function goStep(n) {
+  for (let i=1;i<=4;i++) {
+    document.getElementById("pane"+i).classList.toggle("active", i===n);
+    const step = document.getElementById("step"+i);
+    step.classList.remove("active","done");
+    if (i===n) step.classList.add("active");
+    else if (i<n) step.classList.add("done");
+  }
+  pinBuffer = "";
+  updatePinDots();
+}
+</script>
+</body>
+</html>

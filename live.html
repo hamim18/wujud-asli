@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objectif.ID — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#050308; --gold:#D4A843; --gold2:#F0C85A; --red2:#c0392b; --green2:#27ae60; --text:#e8ddd0; --dim:#7a6a55; --border:rgba(212,168,67,0.15); --panel:#0e0a12; }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100%; background:var(--bg); color:var(--text); font-family:'Cormorant Garamond',Georgia,serif; }
+  body {
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    min-height:100vh; padding:24px;
+    background:radial-gradient(ellipse 80% 70% at 50% 50%, #1a0820 0%, #050308 100%);
+  }
+
+  /* LOADING */
+  #loadingScreen { text-align:center; }
+  .spinner { width:36px; height:36px; border:2px solid rgba(212,168,67,0.3); border-top-color:var(--gold); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+  @keyframes spin { to{transform:rotate(360deg);} }
+  .loading-text { font-family:'Cinzel',serif; font-size:11px; letter-spacing:4px; color:var(--dim); }
+
+  /* EXPIRED */
+  #expiredScreen { display:none; text-align:center; max-width:400px; }
+  .expired-icon  { font-size:48px; margin-bottom:16px; }
+  .expired-title { font-family:'Cinzel',serif; font-size:16px; letter-spacing:4px; color:var(--red2); margin-bottom:10px; }
+  .expired-msg   { font-size:14px; color:var(--dim); line-height:1.8; font-style:italic; }
+  .expired-grace { font-size:12px; color:var(--gold); margin-top:12px; }
+  .contact-btn {
+    display:inline-block; margin-top:20px; padding:12px 28px;
+    background:transparent; border:1px solid rgba(212,168,67,0.3);
+    border-radius:8px; color:var(--gold); font-family:'Cinzel',serif;
+    font-size:10px; letter-spacing:3px; text-decoration:none; transition:all 0.2s;
+  }
+  .contact-btn:hover { background:rgba(212,168,67,0.08); }
+
+  /* MAIN DASHBOARD */
+  #dashScreen { display:none; width:100%; max-width:420px; }
+
+  .dash-header { text-align:center; margin-bottom:32px; }
+  .dash-symbol { font-size:28px; opacity:0.5; display:block; margin-bottom:10px; animation:float 4s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .dash-brand { font-family:'Cinzel',serif; font-size:18px; font-weight:700; letter-spacing:5px; color:var(--gold2); }
+  .dash-name  { font-size:13px; color:var(--dim); font-style:italic; letter-spacing:2px; margin-top:4px; }
+
+  /* SUBSCRIPTION INFO */
+  .sub-info {
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:14px 18px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .sub-status { font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; }
+  .sub-active   { color:var(--green2); }
+  .sub-warning  { color:var(--gold); }
+  .sub-expires { font-size:12px; color:var(--dim); }
+
+  /* NOTIFICATION BANNER */
+  .notif-banner {
+    background:rgba(212,168,67,0.08); border:1px solid rgba(212,168,67,0.25);
+    border-radius:10px; padding:14px 18px; margin-bottom:20px; display:none;
+  }
+  .notif-banner.show { display:block; }
+  .notif-title { font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; color:var(--gold); margin-bottom:6px; }
+  .notif-msg   { font-size:13px; color:var(--text); line-height:1.6; }
+  .notif-actions { display:flex; gap:8px; margin-top:12px; }
+
+  /* EXPIRY WARNING */
+  .expiry-warn {
+    background:rgba(192,57,43,0.08); border:1px solid rgba(192,57,43,0.25);
+    border-radius:10px; padding:12px 18px; margin-bottom:20px; display:none;
+    font-size:13px; color:#e07070; line-height:1.6;
+  }
+  .expiry-warn.show { display:block; }
+
+  /* NAV BUTTONS */
+  .nav-grid { display:flex; flex-direction:column; gap:12px; }
+  .nav-btn {
+    display:flex; align-items:center; gap:16px;
+    padding:18px 22px; border-radius:12px; text-decoration:none;
+    border:1px solid var(--border); background:var(--panel);
+    transition:all 0.2s; cursor:pointer;
+  }
+  .nav-btn:hover { border-color:rgba(212,168,67,0.35); box-shadow:0 4px 20px rgba(212,168,67,0.08); transform:translateY(-1px); }
+  .nav-btn-icon { font-size:26px; width:44px; text-align:center; }
+  .nav-btn-info { flex:1; }
+  .nav-btn-title { font-family:'Cinzel',serif; font-size:12px; letter-spacing:3px; color:var(--gold2); }
+  .nav-btn-desc  { font-size:12px; color:var(--dim); font-style:italic; margin-top:3px; }
+  .nav-btn-arrow { color:var(--dim); font-size:18px; }
+
+  /* btn sizes/colors */
+  .nav-btn.red   { border-color:rgba(155,27,27,0.3); }
+  .nav-btn.red:hover { border-color:rgba(155,27,27,0.6); box-shadow:0 4px 20px rgba(155,27,27,0.1); }
+  .nav-btn.green { border-color:rgba(30,107,58,0.3); }
+  .nav-btn.green:hover { border-color:rgba(39,174,96,0.5); box-shadow:0 4px 20px rgba(39,174,96,0.08); }
+
+  .btn-inline { padding:7px 14px; border-radius:6px; border:none; cursor:pointer; font-family:'Cinzel',serif; font-size:9px; letter-spacing:2px; transition:all 0.2s; }
+  .btn-primary { background:var(--gold); color:#050308; }
+  .btn-primary:hover { background:var(--gold2); }
+  .btn-ghost   { background:transparent; color:var(--gold); border:1px solid var(--border); }
+  .btn-ghost:hover { border-color:var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div class="spinner"></div>
+  <div class="loading-text">MEMUAT DASHBOARD</div>
+</div>
+
+<!-- EXPIRED -->
+<div id="expiredScreen">
+  <div class="expired-icon">🔒</div>
+  <div class="expired-title">LANGGANAN HABIS</div>
+  <div class="expired-msg">Masa aktif layananmu telah berakhir. Hubungi admin untuk memperpanjang dan kembali mengakses semua fitur.</div>
+  <div class="expired-grace" id="graceMsg"></div>
+  <a class="contact-btn" href="mailto:hamimlatif48@gmail.com">📩 &nbsp;Hubungi Admin</a>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashScreen">
+
+  <div class="dash-header">
+    <span class="dash-symbol">✦</span>
+    <div class="dash-brand">OBJECTIF.ID</div>
+    <div class="dash-name" id="dashUserName">Memuat...</div>
+  </div>
+
+  <!-- Subscription info -->
+  <div class="sub-info">
+    <div>
+      <div class="sub-status" id="subStatusText">—</div>
+      <div class="sub-expires" id="subExpiresText">—</div>
+    </div>
+    <span id="subIcon" style="font-size:20px;">⏳</span>
+  </div>
+
+  <!-- Expiry warning -->
+  <div class="expiry-warn" id="expiryWarn"></div>
+
+  <!-- Update notification -->
+  <div class="notif-banner" id="updateBanner">
+    <div class="notif-title">📚 &nbsp;UPDATE TERSEDIA</div>
+    <div class="notif-msg" id="updateMsg"></div>
+    <div class="notif-actions">
+      <button class="btn-inline btn-primary" onclick="goSync()">Sync Sekarang →</button>
+      <button class="btn-inline btn-ghost"   onclick="dismissUpdate()">Nanti</button>
+    </div>
+  </div>
+
+  <!-- Nav buttons -->
+  <div class="nav-grid">
+    <a class="nav-btn red" id="btnDisplay" href="#">
+      <div class="nav-btn-icon">📱</div>
+      <div class="nav-btn-info">
+        <div class="nav-btn-title">DISPLAY</div>
+        <div class="nav-btn-desc">Tampilan live untuk TikTok</div>
+      </div>
+      <div class="nav-btn-arrow">›</div>
+    </a>
+    <a class="nav-btn" id="btnControl" href="#">
+      <div class="nav-btn-icon">💻</div>
+      <div class="nav-btn-info">
+        <div class="nav-btn-title">CONTROL</div>
+        <div class="nav-btn-desc">Panel kontrol live session</div>
+      </div>
+      <div class="nav-btn-arrow">›</div>
+    </a>
+    <a class="nav-btn green" id="btnEdit" href="#">
+      <div class="nav-btn-icon">✏️</div>
+      <div class="nav-btn-info">
+        <div class="nav-btn-title">EDITOR OBJEK</div>
+        <div class="nav-btn-desc">Kelola database objekmu</div>
+      </div>
+      <div class="nav-btn-arrow">›</div>
+    </a>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
+  authDomain: "wujud-asli.firebaseapp.com",
+  databaseURL: "https://wujud-asli-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wujud-asli",
+  storageBucket: "wujud-asli.firebasestorage.app",
+  messagingSenderId: "925029041014",
+  appId: "1:925029041014:web:ccae53254a649cdb0ab057"
+};
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// Get userId from URL
+const params = new URLSearchParams(location.search);
+const uid    = params.get("u");
+
+if (!uid) {
+  location.href = "activate.html";
+}
+
+async function init() {
+  const snap = await get(ref(db, `users/${uid}`));
+
+  if (!snap.exists()) {
+    // User tidak ditemukan → redirect aktivasi
+    location.href = "activate.html";
+    return;
+  }
+
+  const user = snap.val();
+  const sub  = user.subscription || {};
+  const now  = Date.now();
+
+  // Auto-expire check
+  if (sub.status === "active" && sub.expiresAt < now) {
+    await update(ref(db, `users/${uid}/subscription`), { status: "expired" });
+    sub.status = "expired";
+  }
+
+  if (sub.status !== "active") {
+    // Show expired screen
+    document.getElementById("loadingScreen").style.display = "none";
+    document.getElementById("expiredScreen").style.display = "block";
+
+    const graceSnap = await get(ref(db, "config/gracePeriodDays"));
+    const graceDays = graceSnap.val() || 30;
+    const expiredDaysAgo = Math.floor((now - (sub.expiresAt||now)) / (24*60*60*1000));
+    const remaining = graceDays - expiredDaysAgo;
+
+    if (remaining > 0) {
+      document.getElementById("graceMsg").textContent =
+        `⏳ Data kamu masih aman. Perpanjang dalam ${remaining} hari sebelum dihapus.`;
+    } else {
+      document.getElementById("graceMsg").textContent = "⚠ Data kamu akan segera dihapus. Segera hubungi admin.";
+      document.getElementById("graceMsg").style.color = "var(--red2)";
+    }
+    return;
+  }
+
+  // ── ACTIVE: show dashboard ──
+  document.getElementById("loadingScreen").style.display = "none";
+  document.getElementById("dashScreen").style.display    = "block";
+
+  // User name
+  document.getElementById("dashUserName").textContent = user.info?.name || "Pengguna";
+
+  // Subscription info
+  const diffMs = sub.expiresAt - now;
+  const diffD  = Math.ceil(diffMs / (24*60*60*1000));
+  const expiryStr = new Date(sub.expiresAt).toLocaleDateString("id-ID", {day:"2-digit",month:"long",year:"numeric"});
+
+  let statusText, statusClass, icon;
+  if (diffD <= 1)      { statusText="⚠ Habis Besok!"; statusClass="sub-warning"; icon="🔴"; }
+  else if (diffD <= 3) { statusText=`⚠ ${diffD} Hari Lagi`; statusClass="sub-warning"; icon="🟡"; }
+  else if (diffD <= 7) { statusText=`✓ Aktif · ${diffD} hari lagi`; statusClass="sub-active sub-warning"; icon="🟡"; }
+  else                 { statusText="✓ Aktif"; statusClass="sub-active"; icon="🟢"; }
+
+  document.getElementById("subStatusText").textContent = statusText;
+  document.getElementById("subStatusText").className   = "sub-status "+statusClass;
+  document.getElementById("subExpiresText").textContent= "Berakhir: "+expiryStr;
+  document.getElementById("subIcon").textContent        = icon;
+
+  // Expiry warning
+  if (diffD <= 7) {
+    const warn = document.getElementById("expiryWarn");
+    warn.textContent = diffD <= 1
+      ? "🔴 Langgananmu habis besok! Segera perpanjang agar tidak kehilangan akses."
+      : `🟡 Langgananmu habis dalam ${diffD} hari (${expiryStr}). Segera hubungi admin untuk perpanjang.`;
+    warn.classList.add("show");
+
+    // Update notification flags in Firebase
+    await update(ref(db, `users/${uid}/notifications`), {
+      expirySoon: true,
+      expirySoonDays: diffD
+    });
+  }
+
+  // Update notification
+  const notif = user.notifications || {};
+  if (notif.updateAvailable) {
+    document.getElementById("updateMsg").textContent =
+      notif.updateMessage || "Ada objek baru di master library!";
+    document.getElementById("updateBanner").classList.add("show");
+  }
+
+  // Set nav links with userId
+  document.getElementById("btnDisplay").href = `display.html?u=${uid}`;
+  document.getElementById("btnControl").href = `control.html?u=${uid}`;
+  document.getElementById("btnEdit").href    = `edit.html?u=${uid}`;
+
+  // Sync & dismiss
+  window.goSync = () => {
+    location.href = `edit.html?u=${uid}&sync=1`;
+  };
+  window.dismissUpdate = async () => {
+    await update(ref(db, `users/${uid}/notifications`), { updateAvailable: false });
+    document.getElementById("updateBanner").classList.remove("show");
+  };
+}
+
+init();
+</script>
+
+</body>
+</html>

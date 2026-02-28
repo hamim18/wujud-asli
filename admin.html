@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Objectif.ID — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#050308; --panel:#0e0a12; --border:rgba(212,168,67,0.15);
+    --gold:#D4A843; --gold2:#F0C85A; --red:#9B1B1B; --red2:#c0392b;
+    --green:#1e6b3a; --green2:#27ae60; --text:#e8ddd0; --dim:#7a6a55;
+    --input-bg:#0a0710; --blue:#1a4a8a; --blue2:#2980b9;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html,body { min-height:100%; background:var(--bg); color:var(--text); font-family:'Cormorant Garamond',Georgia,serif; font-size:15px; }
+
+  /* LOCK */
+  #lockScreen {
+    position:fixed; inset:0; z-index:1000;
+    background:radial-gradient(ellipse 80% 70% at 50% 50%, #1a0820 0%, #050308 100%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  }
+  .lock-icon  { font-size:42px; animation:lock-float 3s ease-in-out infinite; }
+  @keyframes lock-float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+  .lock-title { font-family:'Cinzel',serif; font-size:18px; letter-spacing:5px; color:var(--gold); }
+  .lock-sub   { font-size:12px; color:var(--dim); font-style:italic; letter-spacing:2px; }
+  .lock-form  { display:flex; flex-direction:column; gap:12px; width:280px; }
+  .lock-input {
+    padding:12px 16px; background:var(--input-bg); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); font-size:16px; outline:none; text-align:center;
+    letter-spacing:4px; font-family:'Cinzel',serif;
+  }
+  .lock-input:focus { border-color:var(--gold); }
+  .lock-btn {
+    padding:12px; background:var(--gold); color:#050308;
+    border:none; border-radius:8px; font-family:'Cinzel',serif;
+    font-size:12px; letter-spacing:3px; cursor:pointer; transition:all 0.2s;
+  }
+  .lock-btn:hover { background:var(--gold2); box-shadow:0 0 20px rgba(212,168,67,0.4); }
+  .lock-error { font-size:11px; color:var(--red2); letter-spacing:2px; text-align:center; opacity:0; transition:opacity 0.3s; }
+  .lock-error.show { opacity:1; }
+  .lock-hint  { font-size:11px; color:var(--dim); font-style:italic; text-align:center; }
+
+  /* APP */
+  #appScreen { display:none; min-height:100vh; }
+
+  /* HEADER */
+  .app-header {
+    position:sticky; top:0; z-index:100;
+    background:rgba(8,5,7,0.97); border-bottom:1px solid var(--border);
+    padding:14px 24px; display:flex; align-items:center; justify-content:space-between;
+    backdrop-filter:blur(10px);
+  }
+  .header-brand { font-family:'Cinzel',serif; font-size:14px; letter-spacing:4px; color:var(--gold); }
+  .header-brand span { color:var(--dim); font-size:10px; letter-spacing:2px; display:block; margin-top:2px; font-style:italic; font-family:'Cormorant Garamond',serif; }
+  .header-actions { display:flex; gap:10px; align-items:center; }
+
+  /* TABS */
+  .tabs { display:flex; border-bottom:1px solid var(--border); background:rgba(14,10,18,0.8); padding:0 24px; gap:4px; }
+  .tab {
+    padding:12px 20px; font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px;
+    color:var(--dim); border:none; background:transparent; cursor:pointer;
+    border-bottom:2px solid transparent; transition:all 0.2s;
+  }
+  .tab:hover { color:var(--gold); }
+  .tab.active { color:var(--gold2); border-bottom-color:var(--gold2); }
+
+  /* TAB PANES */
+  .tab-pane { display:none; padding:24px; }
+  .tab-pane.active { display:block; }
+
+  /* CARDS */
+  .stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:24px; }
+  .stat-card {
+    background:var(--panel); border:1px solid var(--border); border-radius:10px;
+    padding:18px 20px; text-align:center;
+  }
+  .stat-num  { font-family:'Cinzel',serif; font-size:28px; font-weight:700; color:var(--gold2); }
+  .stat-label{ font-size:11px; color:var(--dim); letter-spacing:2px; margin-top:4px; }
+
+  /* BUTTONS */
+  .btn { padding:8px 16px; border-radius:6px; border:none; cursor:pointer; font-family:'Cinzel',serif; font-size:10px; letter-spacing:2px; transition:all 0.2s; white-space:nowrap; }
+  .btn-primary { background:var(--gold); color:#050308; }
+  .btn-primary:hover { background:var(--gold2); box-shadow:0 0 15px rgba(212,168,67,0.4); }
+  .btn-ghost   { background:transparent; color:var(--gold); border:1px solid var(--border); }
+  .btn-ghost:hover { border-color:var(--gold); background:rgba(212,168,67,0.07); }
+  .btn-danger  { background:transparent; color:var(--red2); border:1px solid rgba(192,57,43,0.3); }
+  .btn-danger:hover { background:rgba(192,57,43,0.12); border-color:var(--red2); }
+  .btn-success { background:var(--green); color:#fff; }
+  .btn-success:hover { background:var(--green2); }
+  .btn-blue    { background:var(--blue); color:#fff; }
+  .btn-blue:hover { background:var(--blue2); }
+  .btn-sm { padding:5px 12px; font-size:9px; }
+
+  /* SECTION TITLE */
+  .section-title {
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:4px; color:var(--gold);
+    margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; justify-content:space-between;
+  }
+
+  /* USER TABLE */
+  .user-table { width:100%; border-collapse:collapse; }
+  .user-table th {
+    font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--dim);
+    padding:10px 14px; text-align:left; border-bottom:1px solid var(--border);
+    background:rgba(0,0,0,0.2);
+  }
+  .user-table td { padding:12px 14px; border-bottom:1px solid rgba(212,168,67,0.06); font-size:13px; vertical-align:middle; }
+  .user-table tr:hover td { background:rgba(212,168,67,0.03); }
+
+  .status-badge {
+    display:inline-block; padding:3px 10px; border-radius:4px;
+    font-family:'Cinzel',serif; font-size:9px; letter-spacing:1px;
+  }
+  .status-active   { background:rgba(39,174,96,0.15); color:#5dbc88; border:1px solid rgba(39,174,96,0.3); }
+  .status-expired  { background:rgba(192,57,43,0.15); color:#e07070; border:1px solid rgba(192,57,43,0.3); }
+  .status-warning  { background:rgba(212,168,67,0.15); color:var(--gold); border:1px solid rgba(212,168,67,0.3); }
+  .status-grace    { background:rgba(155,100,27,0.15); color:#c8962a; border:1px solid rgba(155,100,27,0.3); }
+
+  .user-id { font-family:monospace; font-size:12px; color:var(--dim); letter-spacing:1px; }
+  .user-name { font-family:'Cinzel',serif; font-size:13px; color:var(--gold2); letter-spacing:1px; }
+  .expires-text { font-size:12px; }
+  .expires-soon { color:var(--gold); }
+  .expires-over { color:var(--red2); }
+
+  .td-actions { display:flex; gap:6px; }
+
+  /* GENERATE CODE FORM */
+  .gen-form {
+    background:var(--panel); border:1px solid var(--border); border-radius:12px;
+    padding:24px; margin-bottom:24px;
+  }
+  .form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .form-group { margin-bottom:16px; }
+  .form-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--dim); display:block; margin-bottom:7px; }
+  .form-input, .form-select {
+    width:100%; padding:10px 14px; background:var(--input-bg); border:1px solid var(--border);
+    border-radius:7px; color:var(--text); font-size:14px; outline:none; transition:border 0.2s;
+    font-family:'Cormorant Garamond',serif;
+  }
+  .form-input:focus, .form-select:focus { border-color:var(--gold); }
+  .form-input::placeholder { color:var(--dim); }
+
+  /* GENERATED CODE DISPLAY */
+  .code-result {
+    background:rgba(39,174,96,0.08); border:1px solid rgba(39,174,96,0.3);
+    border-radius:10px; padding:20px 24px; margin-top:16px; display:none;
+  }
+  .code-result.show { display:block; }
+  .code-label { font-family:'Cinzel',serif; font-size:9px; letter-spacing:3px; color:var(--dim); margin-bottom:8px; }
+  .code-value {
+    font-family:monospace; font-size:28px; letter-spacing:6px; color:var(--green2);
+    text-shadow:0 0 20px rgba(39,174,96,0.4); text-align:center; padding:10px 0;
+  }
+  .code-info { font-size:12px; color:var(--dim); margin-top:8px; text-align:center; font-style:italic; }
+  .code-copy-btn { display:block; width:100%; margin-top:12px; }
+
+  /* MASTER LIBRARY */
+  .master-info { display:flex; gap:14px; align-items:center; flex-wrap:wrap; }
+  .master-stat { font-size:13px; color:var(--dim); }
+  .master-stat strong { color:var(--gold2); }
+
+  /* PUSH UPDATE */
+  .push-form {
+    background:rgba(212,168,67,0.05); border:1px solid rgba(212,168,67,0.2);
+    border-radius:10px; padding:18px 20px;
+  }
+  .push-desc { font-size:13px; color:var(--dim); margin-bottom:14px; line-height:1.7; font-style:italic; }
+
+  /* MODAL */
+  .modal-overlay { position:fixed; inset:0; z-index:500; background:rgba(5,3,8,0.92); backdrop-filter:blur(8px); display:none; align-items:flex-start; justify-content:center; overflow-y:auto; padding:30px 16px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--panel); border:1px solid rgba(212,168,67,0.25); border-radius:14px; width:100%; max-width:480px; padding:28px; animation:modal-in 0.25s ease; }
+  @keyframes modal-in { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:22px; }
+  .modal-title  { font-family:'Cinzel',serif; font-size:13px; letter-spacing:4px; color:var(--gold); }
+  .modal-close  { width:30px; height:30px; border-radius:50%; border:1px solid var(--border); background:transparent; color:var(--dim); cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; }
+  .modal-close:hover { border-color:var(--gold); color:var(--gold); }
+  .modal-footer { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; padding-top:16px; border-top:1px solid var(--border); }
+
+  /* EXTEND INFO */
+  .extend-user-info { background:rgba(212,168,67,0.06); border:1px solid var(--border); border-radius:8px; padding:14px 16px; margin-bottom:18px; }
+  .extend-user-name { font-family:'Cinzel',serif; font-size:14px; color:var(--gold2); margin-bottom:4px; }
+  .extend-user-meta { font-size:12px; color:var(--dim); }
+
+  /* TOAST */
+  .toast-container { position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+  .toast { padding:12px 18px; border-radius:8px; font-size:13px; letter-spacing:1px; border:1px solid; animation:toast-in 0.3s ease; min-width:200px; }
+  @keyframes toast-in { from{opacity:0;transform:translateY(10px);} to{opacity:1;transform:translateY(0);} }
+  .toast.success { background:#0d2b1a; border-color:rgba(39,174,96,0.4); color:#5dbc88; }
+  .toast.error   { background:#2b0d0d; border-color:rgba(192,57,43,0.4); color:#e07070; }
+  .toast.info    { background:#1a1408; border-color:rgba(212,168,67,0.3); color:var(--gold); }
+
+  /* SETTINGS */
+  .settings-section { background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:16px; }
+  .settings-title { font-family:'Cinzel',serif; font-size:11px; letter-spacing:3px; color:var(--gold); margin-bottom:16px; }
+
+  /* RESPONSIVE */
+  @media(max-width:600px) {
+    .tabs { overflow-x:auto; }
+    .form-row-2 { grid-template-columns:1fr; }
+    .user-table { font-size:12px; }
+    .user-table th, .user-table td { padding:8px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOCK -->
+<div id="lockScreen">
+  <div class="lock-icon">🔐</div>
+  <div class="lock-title">ADMIN PANEL</div>
+  <div class="lock-sub">objectif.id · akses terbatas</div>
+  <div class="lock-form">
+    <input class="lock-input" id="adminPassInput" type="password" placeholder="••••••••" autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkAdminPass()">
+    <button class="lock-btn" onclick="checkAdminPass()">MASUK</button>
+    <div class="lock-error" id="adminError">Password salah. Coba lagi.</div>
+  </div>
+  <div class="lock-hint">Password default: admin123 · bisa diubah di Settings</div>
+</div>
+
+<!-- APP -->
+<div id="appScreen">
+
+  <div class="app-header">
+    <div class="header-brand">
+      OBJECTIF.ID
+      <span>✦ Admin Panel</span>
+    </div>
+    <div class="header-actions">
+      <span id="headerTime" style="font-size:11px;color:var(--dim);font-family:monospace;"></span>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('users')">👥 Pengguna</button>
+    <button class="tab" onclick="switchTab('generate')">🎟 Generate Kode</button>
+    <button class="tab" onclick="switchTab('master')">📚 Master Library</button>
+    <button class="tab" onclick="switchTab('settings')">⚙ Settings</button>
+  </div>
+
+  <!-- ═══ TAB: USERS ═══ -->
+  <div class="tab-pane active" id="tab-users">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="statTotal">—</div>
+        <div class="stat-label">TOTAL USER</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statActive" style="color:#5dbc88;">—</div>
+        <div class="stat-label">AKTIF</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statExpired" style="color:var(--red2);">—</div>
+        <div class="stat-label">EXPIRED</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="statGrace" style="color:var(--gold);">—</div>
+        <div class="stat-label">GRACE PERIOD</div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      DAFTAR PENGGUNA
+      <input type="text" id="userSearch" placeholder="🔍  Cari nama atau ID..."
+        style="font-size:12px;padding:6px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;color:var(--text);outline:none;width:220px;"
+        oninput="renderUsers()">
+    </div>
+
+    <div style="overflow-x:auto;">
+      <table class="user-table">
+        <thead>
+          <tr>
+            <th>NAMA</th>
+            <th>USER ID</th>
+            <th>STATUS</th>
+            <th>EXPIRES</th>
+            <th>AKTIFASI</th>
+            <th>AKSI</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+    <div id="userEmpty" style="text-align:center;padding:40px;color:var(--dim);font-style:italic;display:none;">
+      Belum ada pengguna terdaftar.
+    </div>
+  </div>
+
+  <!-- ═══ TAB: GENERATE ═══ -->
+  <div class="tab-pane" id="tab-generate">
+    <div class="gen-form">
+      <div class="section-title">GENERATE KODE AKTIVASI</div>
+      <div class="form-row-2">
+        <div class="form-group">
+          <label class="form-label">NAMA PENGGUNA <span style="color:var(--red2)">*</span></label>
+          <input class="form-input" id="genName" placeholder="Contoh: Budi Santoso">
+        </div>
+        <div class="form-group">
+          <label class="form-label">DURASI LANGGANAN</label>
+          <select class="form-select" id="genDuration">
+            <option value="7">1 Minggu (7 hari)</option>
+            <option value="14">2 Minggu (14 hari)</option>
+            <option value="30">1 Bulan (30 hari)</option>
+            <option value="90">3 Bulan (90 hari)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">CATATAN (opsional)</label>
+        <input class="form-input" id="genNote" placeholder="Contoh: Pembayaran via BCA 12 Jan">
+      </div>
+      <button class="btn btn-primary" onclick="generateCode()">🎟 &nbsp;Generate Kode Aktivasi</button>
+
+      <div class="code-result" id="codeResult">
+        <div class="code-label">KODE AKTIVASI</div>
+        <div class="code-value" id="codeValue"></div>
+        <div class="code-info" id="codeInfo"></div>
+        <button class="btn btn-success code-copy-btn" onclick="copyCode()">📋 &nbsp;Salin Kode</button>
+      </div>
+    </div>
+
+    <!-- Pending codes -->
+    <div class="section-title">KODE BELUM DIGUNAKAN</div>
+    <div id="pendingCodes">
+      <div style="text-align:center;padding:30px;color:var(--dim);font-style:italic;">Tidak ada kode pending.</div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: MASTER LIBRARY ═══ -->
+  <div class="tab-pane" id="tab-master">
+    <div class="gen-form">
+      <div class="section-title">INFO MASTER LIBRARY</div>
+      <div class="master-info" id="masterInfo">
+        <div class="master-stat">Memuat...</div>
+      </div>
+    </div>
+
+    <div class="push-form">
+      <div class="section-title">PUSH UPDATE KE SEMUA USER</div>
+      <p class="push-desc">
+        Setelah kamu update objek di master library, kirim notifikasi ke semua user aktif
+        agar mereka tahu ada konten baru yang bisa di-sync ke workspace mereka.
+      </p>
+      <div class="form-group">
+        <label class="form-label">PESAN UPDATE (opsional)</label>
+        <input class="form-input" id="pushMessage" placeholder="Contoh: 20 objek baru ditambahkan!">
+      </div>
+      <button class="btn btn-primary" onclick="pushUpdate()">📢 &nbsp;Kirim Notifikasi Update</button>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: SETTINGS ═══ -->
+  <div class="tab-pane" id="tab-settings">
+    <div class="settings-section">
+      <div class="settings-title">GANTI PASSWORD ADMIN</div>
+      <div class="form-group">
+        <label class="form-label">PASSWORD LAMA</label>
+        <input class="form-input" id="oldPass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label class="form-label">PASSWORD BARU</label>
+        <input class="form-input" id="newPass" type="password" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label class="form-label">KONFIRMASI PASSWORD BARU</label>
+        <input class="form-input" id="confirmPass" type="password" placeholder="••••••••">
+      </div>
+      <button class="btn btn-success" onclick="changeAdminPass()">✓ &nbsp;Simpan Password</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-title">GRACE PERIOD</div>
+      <div class="form-group">
+        <label class="form-label">DURASI GRACE PERIOD (HARI)</label>
+        <input class="form-input" id="graceDays" type="number" min="1" max="90" value="30" style="width:120px;">
+      </div>
+      <button class="btn btn-ghost" onclick="saveGracePeriod()">Simpan</button>
+    </div>
+  </div>
+
+</div><!-- end appScreen -->
+
+<!-- ═══ MODAL: EXTEND / MANAGE USER ═══ -->
+<div class="modal-overlay" id="manageModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="manageTitle">KELOLA PENGGUNA</div>
+      <button class="modal-close" onclick="closeModal('manageModal')">✕</button>
+    </div>
+    <div class="extend-user-info">
+      <div class="extend-user-name" id="manageUserName"></div>
+      <div class="extend-user-meta" id="manageUserMeta"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">PERPANJANG / SET DURASI BARU</label>
+      <select class="form-select" id="extendDuration">
+        <option value="7">+ 1 Minggu (7 hari dari sekarang)</option>
+        <option value="14">+ 2 Minggu</option>
+        <option value="30">+ 1 Bulan</option>
+        <option value="90">+ 3 Bulan</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" onclick="revokeUser()">🚫 Cabut Akses</button>
+      <button class="btn btn-ghost"  onclick="closeModal('manageModal')">Batal</button>
+      <button class="btn btn-success" onclick="extendUser()">✓ Perpanjang</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MODAL: CONFIRM REVOKE ═══ -->
+<div class="modal-overlay" id="revokeModal">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-header">
+      <div class="modal-title">CABUT AKSES</div>
+      <button class="modal-close" onclick="closeModal('revokeModal')">✕</button>
+    </div>
+    <p style="font-size:13px;color:var(--text);line-height:1.7;">Yakin ingin mencabut akses <strong id="revokeUserName" style="color:var(--gold2);"></strong>? Status akan diset ke expired sekarang. Data tetap tersimpan.</p>
+    <div class="modal-footer">
+      <button class="btn btn-ghost"  onclick="closeModal('revokeModal')">Batal</button>
+      <button class="btn btn-danger" onclick="confirmRevoke()">🚫 Ya, Cabut Akses</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getDatabase, ref, set, get, push, remove, onValue, update, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCa7Gx76AA9GE0bPdCApDMMysrxYdb4gzc",
+  authDomain: "wujud-asli.firebaseapp.com",
+  databaseURL: "https://wujud-asli-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wujud-asli",
+  storageBucket: "wujud-asli.firebasestorage.app",
+  messagingSenderId: "925029041014",
+  appId: "1:925029041014:web:ccae53254a649cdb0ab057"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── STATE ──
+let allUsers      = {};
+let managingUserId = null;
+let lastGenCode   = "";
+
+// ── CLOCK ──
+setInterval(() => {
+  document.getElementById("headerTime").textContent =
+    new Date().toLocaleString("id-ID", {dateStyle:"short", timeStyle:"short"});
+}, 1000);
+
+// ── LOCK ──
+window.checkAdminPass = async () => {
+  const input = document.getElementById("adminPassInput").value;
+  const snap  = await get(ref(db, "config/adminPassword"));
+  const stored = snap.val() || "admin123";
+  if (input === stored) {
+    document.getElementById("lockScreen").style.display = "none";
+    document.getElementById("appScreen").style.display  = "block";
+    initApp();
+  } else {
+    const err = document.getElementById("adminError");
+    err.classList.add("show");
+    setTimeout(() => err.classList.remove("show"), 2500);
+    document.getElementById("adminPassInput").value = "";
+  }
+};
+document.getElementById("adminPassInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") window.checkAdminPass();
+});
+
+// ── INIT ──
+function initApp() {
+  loadUsers();
+  loadMasterInfo();
+  loadPendingCodes();
+}
+
+// ── TABS ──
+window.switchTab = (tab) => {
+  document.querySelectorAll(".tab").forEach((t,i) => {
+    const tabs = ["users","generate","master","settings"];
+    t.classList.toggle("active", tabs[i]===tab);
+  });
+  document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+  document.getElementById("tab-"+tab).classList.add("active");
+  if (tab === "master") loadMasterInfo();
+  if (tab === "generate") loadPendingCodes();
+};
+
+// ── LOAD USERS ──
+function loadUsers() {
+  onValue(ref(db, "users"), snap => {
+    allUsers = snap.val() || {};
+    updateStats();
+    renderUsers();
+    checkExpiredUsers();
+  });
+}
+
+function updateStats() {
+  const users = Object.values(allUsers);
+  const now   = Date.now();
+  let active=0, expired=0, grace=0;
+  users.forEach(u => {
+    const sub = u.subscription || {};
+    if (sub.status === "active") active++;
+    else if (sub.status === "expired") {
+      const expiredAt = sub.expiresAt || 0;
+      const diff = now - expiredAt;
+      if (diff < 30*24*60*60*1000) grace++;
+      else expired++;
+    }
+  });
+  document.getElementById("statTotal").textContent   = users.length;
+  document.getElementById("statActive").textContent  = active;
+  document.getElementById("statExpired").textContent = expired;
+  document.getElementById("statGrace").textContent   = grace;
+}
+
+window.renderUsers = () => {
+  const q     = (document.getElementById("userSearch")?.value || "").toLowerCase();
+  const tbody = document.getElementById("userTableBody");
+  const empty = document.getElementById("userEmpty");
+  const now   = Date.now();
+
+  const entries = Object.entries(allUsers).filter(([id, u]) => {
+    if (!q) return true;
+    return (u.info?.name||"").toLowerCase().includes(q) || id.toLowerCase().includes(q);
+  });
+
+  if (!entries.length) {
+    tbody.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+  empty.style.display = "none";
+
+  // Sort: active first, then grace, then expired
+  entries.sort(([,a],[,b]) => {
+    const sa = a.subscription?.status === "active" ? 0 : 1;
+    const sb = b.subscription?.status === "active" ? 0 : 1;
+    return sa - sb;
+  });
+
+  tbody.innerHTML = entries.map(([uid, u]) => {
+    const info  = u.info || {};
+    const sub   = u.subscription || {};
+    const exp   = sub.expiresAt || 0;
+    const diff  = exp - now;
+    const diffD = Math.ceil(diff / (24*60*60*1000));
+
+    let statusHtml, expiresHtml;
+
+    if (sub.status === "active") {
+      if (diffD <= 1)      statusHtml = `<span class="status-badge status-warning">⚠ HABIS BESOK</span>`;
+      else if (diffD <= 3) statusHtml = `<span class="status-badge status-warning">⚠ ${diffD} HARI LAGI</span>`;
+      else if (diffD <= 7) statusHtml = `<span class="status-badge status-warning">AKTIF · ${diffD}H</span>`;
+      else                 statusHtml = `<span class="status-badge status-active">✓ AKTIF</span>`;
+      expiresHtml = `<span class="expires-text ${diffD<=3?'expires-soon':''}">${fmtDate(exp)}</span>`;
+    } else {
+      const graceDiff = now - exp;
+      const graceD    = Math.floor(graceDiff / (24*60*60*1000));
+      if (graceD < 30) {
+        statusHtml  = `<span class="status-badge status-grace">GRACE · ${30-graceD}H</span>`;
+      } else {
+        statusHtml  = `<span class="status-badge status-expired">EXPIRED</span>`;
+      }
+      expiresHtml = `<span class="expires-text expires-over">${fmtDate(exp)}</span>`;
+    }
+
+    return `
+      <tr>
+        <td><div class="user-name">${escHtml(info.name||"—")}</div></td>
+        <td><div class="user-id">${uid}</div></td>
+        <td>${statusHtml}</td>
+        <td>${expiresHtml}</td>
+        <td><span style="font-size:12px;color:var(--dim);">${fmtDate(info.activatedAt||0)}</span></td>
+        <td>
+          <div class="td-actions">
+            <button class="btn btn-ghost btn-sm"  onclick="openManage('${uid}')">Kelola</button>
+            <button class="btn btn-blue  btn-sm"  onclick="copyUserLink('${uid}')">🔗</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join("");
+};
+
+// ── AUTO CHECK EXPIRED ──
+function checkExpiredUsers() {
+  const now = Date.now();
+  Object.entries(allUsers).forEach(([uid, u]) => {
+    const sub = u.subscription || {};
+    if (sub.status === "active" && sub.expiresAt && sub.expiresAt < now) {
+      update(ref(db, `users/${uid}/subscription`), { status: "expired" });
+    }
+  });
+}
+
+// ── GENERATE CODE ──
+window.generateCode = async () => {
+  const name = document.getElementById("genName").value.trim();
+  if (!name) { toast("Nama pengguna wajib diisi!", "error"); return; }
+
+  const dur  = parseInt(document.getElementById("genDuration").value);
+  const note = document.getElementById("genNote").value.trim();
+  const code = genRandomCode(8);
+
+  await push(ref(db, "pendingCodes"), {
+    code,
+    name,
+    durationDays: dur,
+    note: note || "",
+    createdAt: Date.now(),
+    used: false
+  });
+
+  const result = document.getElementById("codeResult");
+  document.getElementById("codeValue").textContent = code;
+  document.getElementById("codeInfo").textContent  =
+    `Untuk: ${name} · Durasi: ${dur} hari · Berlaku sampai digunakan`;
+  result.classList.add("show");
+  lastGenCode = code;
+
+  document.getElementById("genName").value = "";
+  document.getElementById("genNote").value = "";
+  toast("✅ Kode aktivasi berhasil dibuat!", "success");
+  loadPendingCodes();
+};
+
+window.copyCode = () => {
+  navigator.clipboard.writeText(lastGenCode).then(() => toast("📋 Kode disalin!", "info"));
+};
+
+function genRandomCode(len) {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  return Array.from({length:len}, () => chars[Math.floor(Math.random()*chars.length)]).join("");
+}
+
+// ── PENDING CODES ──
+async function loadPendingCodes() {
+  const snap = await get(ref(db, "pendingCodes"));
+  const data = snap.val() || {};
+  const container = document.getElementById("pendingCodes");
+
+  const pending = Object.entries(data).filter(([,c]) => !c.used);
+  if (!pending.length) {
+    container.innerHTML = `<div style="text-align:center;padding:30px;color:var(--dim);font-style:italic;">Tidak ada kode pending.</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="overflow-x:auto;">
+      <table class="user-table">
+        <thead><tr><th>KODE</th><th>UNTUK</th><th>DURASI</th><th>DIBUAT</th><th>AKSI</th></tr></thead>
+        <tbody>
+          ${pending.map(([id,c]) => `
+            <tr>
+              <td><code style="font-family:monospace;font-size:15px;letter-spacing:3px;color:var(--green2);">${c.code}</code></td>
+              <td>${escHtml(c.name||"—")}</td>
+              <td style="color:var(--dim);">${c.durationDays} hari</td>
+              <td style="font-size:12px;color:var(--dim);">${fmtDate(c.createdAt||0)}</td>
+              <td>
+                <div class="td-actions">
+                  <button class="btn btn-ghost btn-sm" onclick="copyPendingCode('${c.code}')">📋</button>
+                  <button class="btn btn-danger btn-sm" onclick="deletePendingCode('${id}')">🗑</button>
+                </div>
+              </td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+window.copyPendingCode = (code) => {
+  navigator.clipboard.writeText(code).then(() => toast("📋 "+code+" disalin!", "info"));
+};
+window.deletePendingCode = async (id) => {
+  await remove(ref(db, `pendingCodes/${id}`));
+  toast("🗑 Kode dihapus", "info");
+  loadPendingCodes();
+};
+
+// ── MANAGE USER ──
+window.openManage = (uid) => {
+  const u    = allUsers[uid] || {};
+  const sub  = u.subscription || {};
+  managingUserId = uid;
+  document.getElementById("manageUserName").textContent = u.info?.name || uid;
+  document.getElementById("manageUserMeta").textContent =
+    `ID: ${uid} · Status: ${sub.status||"—"} · Expires: ${fmtDate(sub.expiresAt||0)}`;
+  openModal("manageModal");
+};
+
+window.extendUser = async () => {
+  if (!managingUserId) return;
+  const dur  = parseInt(document.getElementById("extendDuration").value);
+  const now  = Date.now();
+  const newExpiry = now + dur*24*60*60*1000;
+  await update(ref(db, `users/${managingUserId}/subscription`), {
+    status: "active",
+    expiresAt: newExpiry,
+    extendedAt: now
+  });
+  // Reset notification flags
+  await update(ref(db, `users/${managingUserId}/notifications`), {
+    expirySoon: false,
+    expirySoonDays: 0
+  });
+  toast(`✅ Akses diperpanjang ${dur} hari`, "success");
+  closeModal("manageModal");
+};
+
+window.revokeUser = () => {
+  const u = allUsers[managingUserId] || {};
+  document.getElementById("revokeUserName").textContent = u.info?.name || managingUserId;
+  closeModal("manageModal");
+  openModal("revokeModal");
+};
+
+window.confirmRevoke = async () => {
+  if (!managingUserId) return;
+  await update(ref(db, `users/${managingUserId}/subscription`), {
+    status: "expired",
+    expiresAt: Date.now(),
+    revokedAt: Date.now()
+  });
+  toast(`🚫 Akses dicabut`, "info");
+  closeModal("revokeModal");
+  managingUserId = null;
+};
+
+window.copyUserLink = (uid) => {
+  const url = `${location.origin}/live.html?u=${uid}`;
+  navigator.clipboard.writeText(url).then(() => toast("🔗 Link disalin: "+url, "info"));
+};
+
+// ── MASTER LIBRARY ──
+async function loadMasterInfo() {
+  const [objSnap, catSnap, updSnap] = await Promise.all([
+    get(ref(db, "master/objects")),
+    get(ref(db, "master/categories")),
+    get(ref(db, "master/lastUpdated"))
+  ]);
+  const objCount = objSnap.exists() ? Object.keys(objSnap.val()).length : 0;
+  const catCount = catSnap.exists() ? (catSnap.val()?.length||0) : 0;
+  const lastUpd  = updSnap.val() ? fmtDate(updSnap.val()) : "Belum pernah";
+  document.getElementById("masterInfo").innerHTML = `
+    <div class="master-stat"><strong>${objCount}</strong> objek</div>
+    <div class="master-stat"><strong>${catCount}</strong> kategori</div>
+    <div class="master-stat">Update terakhir: <strong>${lastUpd}</strong></div>
+  `;
+}
+
+window.pushUpdate = async () => {
+  const msg  = document.getElementById("pushMessage").value.trim() || "Ada konten baru di master library!";
+  const now  = Date.now();
+
+  // Update master lastUpdated
+  await set(ref(db, "master/lastUpdated"), now);
+
+  // Flag semua user aktif
+  const updates = {};
+  Object.entries(allUsers).forEach(([uid, u]) => {
+    if (u.subscription?.status === "active") {
+      updates[`users/${uid}/notifications/updateAvailable`] = true;
+      updates[`users/${uid}/notifications/updateMessage`]   = msg;
+      updates[`users/${uid}/notifications/updateAt`]        = now;
+    }
+  });
+  if (Object.keys(updates).length) {
+    await update(ref(db), updates);
+    toast(`📢 Notifikasi dikirim ke ${Object.keys(updates).length/3} user aktif`, "success");
+  } else {
+    toast("Tidak ada user aktif saat ini", "info");
+  }
+  document.getElementById("pushMessage").value = "";
+};
+
+// ── SETTINGS ──
+window.changeAdminPass = async () => {
+  const snap = await get(ref(db, "config/adminPassword"));
+  const stored = snap.val() || "admin123";
+  const old  = document.getElementById("oldPass").value;
+  const nw   = document.getElementById("newPass").value;
+  const conf = document.getElementById("confirmPass").value;
+  if (old !== stored) { toast("Password lama salah!", "error"); return; }
+  if (nw.length < 6)  { toast("Password minimal 6 karakter!", "error"); return; }
+  if (nw !== conf)    { toast("Konfirmasi password tidak cocok!", "error"); return; }
+  await set(ref(db, "config/adminPassword"), nw);
+  toast("✅ Password admin berhasil diubah", "success");
+  ["oldPass","newPass","confirmPass"].forEach(id => document.getElementById(id).value="");
+};
+
+window.saveGracePeriod = async () => {
+  const days = parseInt(document.getElementById("graceDays").value);
+  if (!days || days<1) { toast("Durasi tidak valid!", "error"); return; }
+  await set(ref(db, "config/gracePeriodDays"), days);
+  toast(`✅ Grace period diset ke ${days} hari`, "success");
+};
+
+// Load grace period setting
+get(ref(db, "config/gracePeriodDays")).then(snap => {
+  if (snap.val()) document.getElementById("graceDays").value = snap.val();
+});
+
+// ── HELPERS ──
+window.openModal  = (id) => document.getElementById(id).classList.add("open");
+window.closeModal = (id) => document.getElementById(id).classList.remove("open");
+document.querySelectorAll(".modal-overlay").forEach(el =>
+  el.addEventListener("click", e => { if(e.target===el) el.classList.remove("open"); }));
+
+function fmtDate(ts) {
+  if (!ts) return "—";
+  return new Date(ts).toLocaleDateString("id-ID", {day:"2-digit",month:"short",year:"numeric"});
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function toast(msg, type="info") {
+  const c  = document.getElementById("toastContainer");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+
+</body>
+</html>

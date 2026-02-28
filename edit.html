@@ -631,6 +631,7 @@ function loadObjects() {
     // Sort by name
     allObjects.sort((a,b) => a.name.localeCompare(b.name));
     buildCategoryFilter();
+    syncCategoryDropdown();
     applyFilter();
     updateStats();
   });
@@ -884,26 +885,35 @@ function getCategories() {
   return cats;
 }
 
-function renderCatList() {
-  const cats   = getCategories();
-  const sorted = Object.entries(cats).sort((a,b) => a[0].localeCompare(b[0]));
-  const list   = document.getElementById("catList");
+async function renderCatList() {
+  const fromObjs = getCategories(); // {cat: count}
+  const snap     = await get(ref(db, "config/categories"));
+  const configCats = snap.val() || [];
 
-  if (!sorted.length) {
+  // Gabung semua: dari objek + dari config (termasuk yang kosong)
+  const allCats = [...new Set([...Object.keys(fromObjs), ...configCats])].sort();
+  const list    = document.getElementById("catList");
+
+  if (!allCats.length) {
     list.innerHTML = `<div style="text-align:center;color:var(--dim);padding:20px;font-style:italic;">Belum ada kategori</div>`;
     return;
   }
 
-  list.innerHTML = sorted.map(([cat, count]) => `
-    <div class="cat-row" id="catrow-${cat}">
-      <div class="cat-name" id="catname-${cat}">${cat}</div>
-      <div class="cat-count">${count} objek</div>
-      <div class="cat-actions">
-        <button class="icon-btn edit-btn" onclick="startRename('${cat}')" title="Rename">✏️</button>
-        <button class="icon-btn delete-btn" onclick="openDeleteCat('${cat}', ${count})" title="Hapus">🗑</button>
+  list.innerHTML = allCats.map(cat => {
+    const count = fromObjs[cat] || 0;
+    return `
+      <div class="cat-row" id="catrow-${cat}">
+        <div class="cat-name" id="catname-${cat}">${cat}</div>
+        <div class="cat-count" style="color:${count===0?'rgba(192,57,43,0.6)':'var(--dim)'}">
+          ${count === 0 ? "kosong" : count+" objek"}
+        </div>
+        <div class="cat-actions">
+          <button class="icon-btn edit-btn"   onclick="startRename('${cat}')" title="Rename">✏️</button>
+          <button class="icon-btn delete-btn" onclick="openDeleteCat('${cat}', ${count})" title="Hapus">🗑</button>
+        </div>
       </div>
-    </div>
-  `).join("");
+    `;
+  }).join("");
 }
 
 window.startRename = (cat) => {
@@ -962,15 +972,15 @@ window.addCategory = async () => {
   const name  = input.value.trim().toLowerCase().replace(/\s+/g,"-");
   if (!name) { toast("Nama kategori tidak boleh kosong!", "error"); return; }
 
-  const cats = getCategories();
-  if (cats[name] !== undefined) { toast(`Kategori "${name}" sudah ada!`, "error"); return; }
-
-  // Kategori disimpan sebagai option di Firebase config
-  const snap = await get(ref(db, "config/categories"));
+  // Cek duplikat dari objek + config
+  const snap     = await get(ref(db, "config/categories"));
   const existing = snap.val() || [];
-  if (!existing.includes(name)) {
-    await set(ref(db, "config/categories"), [...existing, name]);
-  }
+  const fromObjs = [...new Set(allObjects.map(o => o.category).filter(Boolean))];
+  const allCats  = [...new Set([...existing, ...fromObjs])];
+  if (allCats.includes(name)) { toast(`Kategori "${name}" sudah ada!`, "error"); return; }
+
+  // Simpan ke Firebase config
+  await set(ref(db, "config/categories"), [...existing, name]);
 
   // Tambah ke dropdown form
   addCategoryOption(name);
@@ -1007,26 +1017,31 @@ window.confirmDeleteCat = async () => {
   const targetCat = document.getElementById("moveTarget").value || "tambahan";
   const targets   = allObjects.filter(o => o.category === deletingCat);
 
-  toast(`Memindahkan ${targets.length} objek ke "${targetCat}"...`, "info");
-
-  try {
-    for (const obj of targets) {
-      await update(ref(db, `objects/${obj.id}`), { category: targetCat });
+  if (targets.length > 0) {
+    toast(`Memindahkan ${targets.length} objek ke "${targetCat}"...`, "info");
+    try {
+      for (const obj of targets) {
+        await update(ref(db, `objects/${obj.id}`), { category: targetCat });
+      }
+    } catch(e) {
+      toast("Gagal memindahkan objek: "+e.message, "error"); return;
     }
-
-    // Remove from config/categories if stored there
-    const snap = await get(ref(db, "config/categories"));
-    const cats  = (snap.val() || []).filter(c => c !== deletingCat);
-    await set(ref(db, "config/categories"), cats);
-
-    toast(`✅ Kategori "${deletingCat}" dihapus. ${targets.length} objek dipindah ke "${targetCat}"`, "success");
-    deletingCat = null;
-    closeModal("moveModal");
-    renderCatList();
-    buildCategoryFilter();
-  } catch(e) {
-    toast("Gagal hapus kategori: "+e.message, "error");
   }
+
+  // Hapus dari config/categories
+  const snap = await get(ref(db, "config/categories"));
+  const cats  = (snap.val() || []).filter(c => c !== deletingCat);
+  await set(ref(db, "config/categories"), cats);
+
+  // Hapus dari dropdown form
+  const sel = document.getElementById("fCategory");
+  Array.from(sel.options).forEach(opt => { if (opt.value === deletingCat) opt.remove(); });
+
+  toast(`✅ Kategori "${deletingCat}" dihapus${targets.length>0?`. ${targets.length} objek dipindah ke "${targetCat}"`:""}`, "success");
+  deletingCat = null;
+  closeModal("moveModal");
+  renderCatList();
+  buildCategoryFilter();
 };
 
 function updateCategoryDropdown(oldCat, newCat) {
@@ -1049,6 +1064,27 @@ async function loadExtraCategories() {
   const snap = await get(ref(db, "config/categories"));
   const cats  = snap.val() || [];
   cats.forEach(addCategoryOption);
+}
+
+function syncCategoryDropdown() {
+  // Ambil semua kategori: dari objek + dari config
+  const fromObjects = [...new Set(allObjects.map(o => o.category).filter(Boolean))];
+  const sel = document.getElementById("fCategory");
+  const existing = Array.from(sel.options).map(o => o.value);
+
+  // Tambah yang belum ada
+  fromObjects.forEach(cat => {
+    if (!existing.includes(cat)) addCategoryOption(cat);
+  });
+
+  // Hapus yang sudah tidak ada di objek maupun config
+  get(ref(db, "config/categories")).then(snap => {
+    const configCats = snap.val() || [];
+    const allValid   = [...new Set([...fromObjects, ...configCats])];
+    Array.from(sel.options).forEach(opt => {
+      if (!allValid.includes(opt.value)) opt.remove();
+    });
+  });
 }
 
 // ── CHANGE PIN ──

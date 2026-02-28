@@ -271,6 +271,33 @@
   .page-btn:disabled { opacity:0.3; cursor:default; }
   .page-info { font-size:12px; color:var(--dim); letter-spacing:1px; }
 
+  /* ── CATEGORY MANAGER ── */
+  .cat-list { display:flex; flex-direction:column; gap:8px; max-height:340px; overflow-y:auto; margin-bottom:16px; }
+  .cat-row {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 14px; background:rgba(0,0,0,0.25);
+    border:1px solid var(--border); border-radius:8px;
+    transition:border-color 0.2s;
+  }
+  .cat-row:hover { border-color:rgba(212,168,67,0.3); }
+  .cat-name  { flex:1; font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; color:var(--gold2); }
+  .cat-count { font-size:11px; color:var(--dim); min-width:60px; text-align:right; }
+  .cat-actions { display:flex; gap:6px; }
+
+  .cat-add-row { display:flex; gap:8px; margin-top:4px; }
+  .cat-add-row input { flex:1; }
+
+  /* rename inline */
+  .cat-rename-input {
+    flex:1; background:var(--input-bg); border:1px solid var(--gold);
+    border-radius:5px; color:var(--gold2); padding:4px 10px;
+    font-family:'Cinzel',serif; font-size:12px; letter-spacing:2px; outline:none;
+  }
+
+  /* ── MOVE OBJECTS MODAL ── */
+  .move-info { font-size:13px; color:var(--text); line-height:1.7; margin-bottom:16px; }
+  .move-info strong { color:var(--gold2); }
+
   /* ── RESPONSIVE ── */
   @media (max-width:500px) {
     .toolbar { flex-direction:column; align-items:stretch; }
@@ -330,6 +357,7 @@
     <button class="btn btn-primary" onclick="openAddModal()">＋ &nbsp;Tambah Objek</button>
     <button class="btn btn-ghost"   onclick="openImportModal()">⬆ Import</button>
     <button class="btn btn-ghost"   onclick="exportAll()">⬇ Export</button>
+    <button class="btn btn-ghost"   onclick="openCatModal()">🗂 Kategori</button>
     <button class="btn btn-ghost"   onclick="openPinModal()">⚙ PIN</button>
 
     <div class="search-wrap">
@@ -407,6 +435,52 @@
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('editModal')">Batal</button>
       <button class="btn btn-success" onclick="saveObject()">💾 &nbsp;Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: CATEGORY MANAGER ═══════════════ -->
+<div class="modal-overlay" id="catModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <div class="modal-title">🗂 MANAJEMEN KATEGORI</div>
+      <button class="modal-close" onclick="closeModal('catModal')">✕</button>
+    </div>
+
+    <div class="cat-list" id="catList"></div>
+
+    <!-- Add new category -->
+    <div style="border-top:1px solid var(--border); padding-top:14px;">
+      <div class="form-label" style="margin-bottom:8px;">TAMBAH KATEGORI BARU</div>
+      <div class="cat-add-row">
+        <input class="form-input" id="newCatInput" placeholder="nama-kategori" onkeydown="if(event.key==='Enter')addCategory()">
+        <button class="btn btn-primary" onclick="addCategory()">＋ Tambah</button>
+      </div>
+      <div style="font-size:11px;color:var(--dim);font-style:italic;margin-top:6px;">Gunakan huruf kecil dan tanda hubung. Contoh: sarkas-ringan</div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('catModal')">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ MODAL: MOVE OBJECTS ═══════════════ -->
+<div class="modal-overlay" id="moveModal">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-header">
+      <div class="modal-title">HAPUS KATEGORI</div>
+      <button class="modal-close" onclick="closeModal('moveModal')">✕</button>
+    </div>
+    <div class="move-info" id="moveInfo"></div>
+    <div class="form-group">
+      <label class="form-label">PINDAHKAN OBJEK KE KATEGORI</label>
+      <select class="form-select" id="moveTarget"></select>
+    </div>
+    <div style="font-size:11px;color:rgba(192,57,43,0.8);font-style:italic;margin-top:-8px;margin-bottom:4px;" id="moveDeleteNote"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost"  onclick="closeModal('moveModal')">Batal</button>
+      <button class="btn btn-danger" onclick="confirmDeleteCat()">🗑 Hapus Kategori</button>
     </div>
   </div>
 </div>
@@ -540,6 +614,7 @@ async function checkPin() {
     document.getElementById("lockScreen").style.display = "none";
     document.getElementById("appScreen").style.display  = "block";
     loadObjects();
+    loadExtraCategories();
   } else {
     document.getElementById("lockError").classList.add("show");
     pinBuffer = "";
@@ -790,6 +865,191 @@ window.exportAll = () => {
   URL.revokeObjectURL(url);
   toast("⬇ Export berhasil", "info");
 };
+
+// ── CATEGORY MANAGER ──
+let deletingCat  = null;
+let renamingCat  = null;
+
+window.openCatModal = () => {
+  renderCatList();
+  openModal("catModal");
+};
+
+function getCategories() {
+  const cats = {};
+  allObjects.forEach(o => {
+    const c = o.category || "tambahan";
+    cats[c] = (cats[c] || 0) + 1;
+  });
+  return cats;
+}
+
+function renderCatList() {
+  const cats   = getCategories();
+  const sorted = Object.entries(cats).sort((a,b) => a[0].localeCompare(b[0]));
+  const list   = document.getElementById("catList");
+
+  if (!sorted.length) {
+    list.innerHTML = `<div style="text-align:center;color:var(--dim);padding:20px;font-style:italic;">Belum ada kategori</div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(([cat, count]) => `
+    <div class="cat-row" id="catrow-${cat}">
+      <div class="cat-name" id="catname-${cat}">${cat}</div>
+      <div class="cat-count">${count} objek</div>
+      <div class="cat-actions">
+        <button class="icon-btn edit-btn" onclick="startRename('${cat}')" title="Rename">✏️</button>
+        <button class="icon-btn delete-btn" onclick="openDeleteCat('${cat}', ${count})" title="Hapus">🗑</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+window.startRename = (cat) => {
+  // Restore any previous rename
+  if (renamingCat && renamingCat !== cat) cancelRename(renamingCat);
+  renamingCat = cat;
+
+  const nameEl = document.getElementById("catname-"+cat);
+  nameEl.innerHTML = `
+    <input class="cat-rename-input" id="renameinput-${cat}"
+      value="${cat}"
+      onkeydown="if(event.key==='Enter')doRename('${cat}'); if(event.key==='Escape')cancelRename('${cat}')">
+    <button class="icon-btn edit-btn" onclick="doRename('${cat}')" style="width:28px;height:28px;margin-left:6px;" title="Simpan">✓</button>
+    <button class="icon-btn" onclick="cancelRename('${cat}')" style="width:28px;height:28px;background:rgba(122,106,85,0.15);color:var(--dim);" title="Batal">✕</button>
+  `;
+  setTimeout(() => document.getElementById("renameinput-"+cat)?.focus(), 50);
+};
+
+window.cancelRename = (cat) => {
+  renamingCat = null;
+  const nameEl = document.getElementById("catname-"+cat);
+  if (nameEl) nameEl.innerHTML = cat;
+};
+
+window.doRename = async (oldCat) => {
+  const input   = document.getElementById("renameinput-"+oldCat);
+  if (!input) return;
+  const newCat  = input.value.trim().toLowerCase().replace(/\s+/g,"-");
+
+  if (!newCat)           { toast("Nama kategori tidak boleh kosong!", "error"); return; }
+  if (newCat === oldCat) { cancelRename(oldCat); return; }
+
+  const cats = getCategories();
+  if (cats[newCat] !== undefined) { toast(`Kategori "${newCat}" sudah ada!`, "error"); return; }
+
+  // Update semua objek yang pakai kategori lama
+  const targets = allObjects.filter(o => o.category === oldCat);
+  toast(`Mengupdate ${targets.length} objek...`, "info");
+
+  try {
+    for (const obj of targets) {
+      await update(ref(db, `objects/${obj.id}`), { category: newCat });
+    }
+    // Update dropdown form juga
+    updateCategoryDropdown(oldCat, newCat);
+    renamingCat = null;
+    toast(`✅ Kategori "${oldCat}" → "${newCat}" (${targets.length} objek diupdate)`, "success");
+    renderCatList();
+  } catch(e) {
+    toast("Gagal rename: "+e.message, "error");
+  }
+};
+
+window.addCategory = async () => {
+  const input = document.getElementById("newCatInput");
+  const name  = input.value.trim().toLowerCase().replace(/\s+/g,"-");
+  if (!name) { toast("Nama kategori tidak boleh kosong!", "error"); return; }
+
+  const cats = getCategories();
+  if (cats[name] !== undefined) { toast(`Kategori "${name}" sudah ada!`, "error"); return; }
+
+  // Kategori disimpan sebagai option di Firebase config
+  const snap = await get(ref(db, "config/categories"));
+  const existing = snap.val() || [];
+  if (!existing.includes(name)) {
+    await set(ref(db, "config/categories"), [...existing, name]);
+  }
+
+  // Tambah ke dropdown form
+  addCategoryOption(name);
+  input.value = "";
+  toast(`✅ Kategori "${name}" ditambahkan`, "success");
+  renderCatList();
+};
+
+window.openDeleteCat = (cat, count) => {
+  deletingCat = cat;
+  const cats    = getCategories();
+  const others  = Object.keys(cats).filter(c => c !== cat);
+
+  document.getElementById("moveInfo").innerHTML =
+    `Kategori <strong>${cat}</strong> memiliki <strong>${count} objek</strong>.<br>
+     Pilih tujuan pemindahan sebelum menghapus kategori ini.`;
+
+  const sel = document.getElementById("moveTarget");
+  sel.innerHTML = others.map(c => `<option value="${c}">${c} (${cats[c]} objek)</option>`).join("");
+
+  if (!others.length) {
+    sel.innerHTML = `<option value="tambahan">tambahan</option>`;
+    document.getElementById("moveDeleteNote").textContent =
+      "Tidak ada kategori lain. Objek akan dipindah ke \"tambahan\".";
+  } else {
+    document.getElementById("moveDeleteNote").textContent = "";
+  }
+
+  openModal("moveModal");
+};
+
+window.confirmDeleteCat = async () => {
+  if (!deletingCat) return;
+  const targetCat = document.getElementById("moveTarget").value || "tambahan";
+  const targets   = allObjects.filter(o => o.category === deletingCat);
+
+  toast(`Memindahkan ${targets.length} objek ke "${targetCat}"...`, "info");
+
+  try {
+    for (const obj of targets) {
+      await update(ref(db, `objects/${obj.id}`), { category: targetCat });
+    }
+
+    // Remove from config/categories if stored there
+    const snap = await get(ref(db, "config/categories"));
+    const cats  = (snap.val() || []).filter(c => c !== deletingCat);
+    await set(ref(db, "config/categories"), cats);
+
+    toast(`✅ Kategori "${deletingCat}" dihapus. ${targets.length} objek dipindah ke "${targetCat}"`, "success");
+    deletingCat = null;
+    closeModal("moveModal");
+    renderCatList();
+    buildCategoryFilter();
+  } catch(e) {
+    toast("Gagal hapus kategori: "+e.message, "error");
+  }
+};
+
+function updateCategoryDropdown(oldCat, newCat) {
+  const sel = document.getElementById("fCategory");
+  Array.from(sel.options).forEach(opt => {
+    if (opt.value === oldCat) { opt.value = newCat; opt.textContent = newCat; }
+  });
+}
+
+function addCategoryOption(name) {
+  const sel = document.getElementById("fCategory");
+  if (!Array.from(sel.options).find(o => o.value === name)) {
+    const opt = document.createElement("option");
+    opt.value = name; opt.textContent = name;
+    sel.appendChild(opt);
+  }
+}
+
+async function loadExtraCategories() {
+  const snap = await get(ref(db, "config/categories"));
+  const cats  = snap.val() || [];
+  cats.forEach(addCategoryOption);
+}
 
 // ── CHANGE PIN ──
 window.openPinModal = () => {

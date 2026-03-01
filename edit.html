@@ -1391,7 +1391,7 @@ window.bulkDelete = async () => {
   let done = 0;
   for (const id of selectedIds) {
     try {
-      await remove(ref(db, \`\${BASE}/objects/\${id}\`));
+      await remove(ref(db, `${BASE}/objects/${id}`));
       done++;
     } catch(e) { console.error("Gagal hapus", id, e); }
   }

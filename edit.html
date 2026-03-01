@@ -1383,20 +1383,20 @@ function updateBulkBar() {
 window.bulkDelete = async () => {
   if (!selectedIds.size) return;
   const n = selectedIds.size;
-  if (!confirm(`Hapus ${n} objek yang dipilih? Tindakan ini tidak bisa dibatalkan.`)) return;
+  if (!confirm("Hapus " + n + " objek yang dipilih? Tindakan ini tidak bisa dibatalkan.")) return;
 
   const btn = document.querySelector(".bulk-actions .btn-danger");
   if (btn) { btn.disabled = true; btn.textContent = "Menghapus..."; }
 
   let done = 0;
-  for (const id of selectedIds) {
+  for (const id of Array.from(selectedIds)) {
     try {
-      await remove(ref(db, `${BASE}/objects/${id}`));
+      await remove(ref(db, BASE + "/objects/" + id));
       done++;
     } catch(e) { console.error("Gagal hapus", id, e); }
   }
 
-  toast(\`🗑 \${done} objek berhasil dihapus\`, done===n ? "success" : "info");
+  toast("🗑 " + done + " objek berhasil dihapus", done === n ? "success" : "info");
   clearSelection();
 };
 

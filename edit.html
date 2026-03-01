@@ -145,6 +145,25 @@
   .icon-btn.delete-btn { background:rgba(192,57,43,0.1); color:var(--red2); }
   .icon-btn.delete-btn:hover { background:rgba(192,57,43,0.22); }
 
+
+  /* ── BULK SELECT ── */
+  .obj-card.selected { border-color:rgba(212,168,67,0.6); background:rgba(212,168,67,0.06); }
+  .obj-checkbox {
+    width:18px; height:18px; border-radius:4px; border:1.5px solid rgba(212,168,67,0.3);
+    background:transparent; cursor:pointer; flex-shrink:0; appearance:none;
+    display:flex; align-items:center; justify-content:center; transition:all 0.15s;
+  }
+  .obj-checkbox:checked { background:var(--gold); border-color:var(--gold); }
+  .obj-checkbox:checked::after { content:"✓"; color:#050308; font-size:11px; font-weight:700; }
+  .bulk-bar {
+    display:none; align-items:center; gap:12px; padding:10px 20px;
+    background:rgba(212,168,67,0.08); border-bottom:1px solid rgba(212,168,67,0.2);
+    font-family:'Cinzel',serif; font-size:11px; letter-spacing:2px;
+  }
+  .bulk-bar.show { display:flex; }
+  .bulk-count { color:var(--gold2); }
+  .bulk-actions { display:flex; gap:8px; margin-left:auto; }
+
   /* Expand detail */
   .obj-detail {
     display:none; margin-top:12px; padding-top:12px;
@@ -417,9 +436,20 @@
     </div>
   </div>
 
+  <!-- Bulk Bar -->
+  <div class="bulk-bar" id="bulkBar">
+    <input type="checkbox" class="obj-checkbox" id="selectAllCheck" onchange="toggleSelectAll(this.checked)" title="Pilih Semua">
+    <span class="bulk-count" id="bulkCount">0 dipilih</span>
+    <div class="bulk-actions">
+      <button class="btn btn-danger" style="font-size:9px;padding:6px 14px;" onclick="bulkDelete()">🗑 Hapus Terpilih</button>
+      <button class="btn btn-ghost"  style="font-size:9px;padding:6px 14px;" onclick="clearSelection()">✕ Batal</button>
+    </div>
+  </div>
+
   <!-- Toolbar -->
   <div class="toolbar">
     <button class="btn btn-primary" onclick="openAddModal()">＋ &nbsp;Tambah Objek</button>
+    <button class="btn btn-ghost"   onclick="toggleBulkMode()" id="bulkModeBtn">☑ Pilih</button>
     <button class="btn btn-ghost"   onclick="openImportModal()">⬆ Import</button>
     <button class="btn btn-ghost"   onclick="openSyncModal()">⟳ Sync Master</button>
     <button class="btn btn-ghost"   onclick="exportAll()">⬇ Export</button>
@@ -804,7 +834,10 @@ function renderList() {
   }
 
   list.innerHTML = page.map(obj => `
-    <div class="obj-card" id="card-${obj.id}" onclick="toggleCard('${obj.id}')">
+    <div class="obj-card ${selectedIds.has(obj.id)?'selected':''}" id="card-${obj.id}" onclick="handleCardClick(event,'${obj.id}')">
+      <input type="checkbox" class="obj-checkbox" id="chk-${obj.id}"
+        style="display:var(--chk-display,none);margin-top:2px;"
+        onclick="event.stopPropagation()" onchange="onCheckChange('${obj.id}',this.checked)">
       <div class="obj-emoji-badge">${obj.emoji}</div>
       <div class="obj-info">
         <div class="obj-name">${escHtml(obj.name)}</div>
@@ -1282,6 +1315,89 @@ window.dismissUpdateBanner = async () => {
 window.doSyncMaster = () => {
   closeModal && closeModal("syncModal");
   openSyncModal();
+};
+
+
+// ── BULK DELETE ──
+let bulkMode    = false;
+let selectedIds = new Set();
+
+window.toggleBulkMode = () => {
+  bulkMode = !bulkMode;
+  selectedIds.clear();
+  document.getElementById("bulkModeBtn").textContent = bulkMode ? "✕ Batal Pilih" : "☑ Pilih";
+  document.getElementById("bulkModeBtn").style.color = bulkMode ? "var(--red2)" : "";
+  document.documentElement.style.setProperty("--chk-display", bulkMode ? "block" : "none");
+  document.getElementById("bulkBar").classList.toggle("show", bulkMode);
+  updateBulkBar();
+  renderList();
+};
+
+window.clearSelection = () => {
+  bulkMode = false;
+  selectedIds.clear();
+  document.getElementById("bulkModeBtn").textContent = "☑ Pilih";
+  document.getElementById("bulkModeBtn").style.color = "";
+  document.documentElement.style.setProperty("--chk-display", "none");
+  document.getElementById("bulkBar").classList.remove("show");
+  renderList();
+};
+
+window.toggleSelectAll = (checked) => {
+  const start = (currentPage-1)*PER_PAGE;
+  filtered.slice(start, start+PER_PAGE).forEach(obj => {
+    if (checked) selectedIds.add(obj.id);
+    else selectedIds.delete(obj.id);
+  });
+  updateBulkBar();
+  renderList();
+};
+
+window.onCheckChange = (id, checked) => {
+  if (checked) selectedIds.add(id);
+  else selectedIds.delete(id);
+  updateBulkBar();
+};
+
+window.handleCardClick = (e, id) => {
+  if (bulkMode) {
+    // Toggle checkbox
+    const chk = document.getElementById("chk-"+id);
+    if (chk) { chk.checked = !chk.checked; onCheckChange(id, chk.checked); }
+  } else {
+    toggleCard(id);
+  }
+};
+
+function updateBulkBar() {
+  const n = selectedIds.size;
+  document.getElementById("bulkCount").textContent = n + " dipilih";
+  // Sync selectAll checkbox
+  const start = (currentPage-1)*PER_PAGE;
+  const pageIds = filtered.slice(start, start+PER_PAGE).map(o=>o.id);
+  const allChecked = pageIds.length > 0 && pageIds.every(id => selectedIds.has(id));
+  const selAll = document.getElementById("selectAllCheck");
+  if (selAll) { selAll.checked = allChecked; selAll.indeterminate = !allChecked && pageIds.some(id=>selectedIds.has(id)); }
+}
+
+window.bulkDelete = async () => {
+  if (!selectedIds.size) return;
+  const n = selectedIds.size;
+  if (!confirm(`Hapus ${n} objek yang dipilih? Tindakan ini tidak bisa dibatalkan.`)) return;
+
+  const btn = document.querySelector(".bulk-actions .btn-danger");
+  if (btn) { btn.disabled = true; btn.textContent = "Menghapus..."; }
+
+  let done = 0;
+  for (const id of selectedIds) {
+    try {
+      await remove(ref(db, \`\${BASE}/objects/\${id}\`));
+      done++;
+    } catch(e) { console.error("Gagal hapus", id, e); }
+  }
+
+  toast(\`🗑 \${done} objek berhasil dihapus\`, done===n ? "success" : "info");
+  clearSelection();
 };
 
 // ── CHANGE PIN ──
